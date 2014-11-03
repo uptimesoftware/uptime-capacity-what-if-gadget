@@ -1,5 +1,6 @@
 {
   "name": "uptime.CapacityWhatIfGadget",
+  "title": "Capacity What If Gadget",
   "version": "0.1.0",
   "description": "uptime Capacity WhatIf Gadget",
   "main": "src/uptimeCapacity.js",

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Module>
-	<ModulePrefs title="Capacity Gadget"
-		description="Use this gadget to display the service monitor status in a pie or bar chart format for a single element."
+	<ModulePrefs title="<%= pkg.title %>"
+		description="<%= pkg.description %>"
 		thumbnail="elementStatusThm.png">
 		<Require feature="dynamic-height" />
 	</ModulePrefs>
