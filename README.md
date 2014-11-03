@@ -1,4 +1,4 @@
-# up.time Capacity Gadget
+# up.time Capacity What If Gadget
 
 > Show your capacity till doomsday
 
