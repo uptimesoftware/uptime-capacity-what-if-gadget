@@ -17,6 +17,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
 		var queryType = null;
 		var timeFrame = null;
 		var chartTimer = null;
+        var newVMsAdjustment = 0;
 		var capacityBuffer = 100;
 		var api = new apiQueries();
 		var getMetricsPath = null;
@@ -37,6 +38,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
 			timeFrame = options.timeFrame;
 			capacityBuffer = options.capacityBuffer;
 			getMetricsPath = options.getMetricsPath;
+            newVMsAdjustment = options.newVMsAdjustment;
 		}
 
 		var dataLabelsEnabled = false;
@@ -132,13 +134,6 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
      		last_Xvalue = lastPoint[1];
         	last_Yvalue = lastPoint[0];
         	
-
-        	//let see if we can just figure out when Xvalue = Capacity and then the date to go with it
-        	capacityLeft = capacityCap - last_Xvalue;
-        	timeToGo = capacityLeft / xDelta;
-        	timeToGoInMS = timeToGo * yDelta;
-        	actualTime = timeToGoInMS + last_Yvalue;
-
         	CapacityLine = [[firstPoint[0], capacityCap],
 							[lastPoint[0], capacityCap]];
 
@@ -146,6 +141,8 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
 									[lastPoint[0], capacityCapBuffered]];
 
 			LineOfBestFitForEstimatedMetrics = [lastPoint];
+
+
 
         	if ( xDelta > 0 && capacityCap > lastPoint[1])
    			{
@@ -155,6 +152,15 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
         		CapacityLine.push(CapacityPoint);
         		BufferedCapacityLine.push(BufferedCapacityPoint);
 
+                if (newVMsAdjustment > 0)
+                {
+                    EstimateLineWithNewVms = [[lastPoint[0], lastPoint[1] + newVMsAdjustment ]];
+                    capacityWithNewVms = figureOutCapacity(capacityCap, EstimateLineWithNewVms[0][1], last_Yvalue , xDelta, yDelta);
+
+                    bufferedcapacityWithNewVms = figureOutCapacity(capacityCapBuffered, EstimateLineWithNewVms[0][1], last_Yvalue, xDelta, yDelta);
+                    
+                    EstimateLineWithNewVms.push(capacityWithNewVms, bufferedcapacityWithNewVms);
+                }
 
 				countDowntillDoomsday(lastPoint, CapacityPoint, BufferedCapacityPoint, xDelta);
 
@@ -197,6 +203,15 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
         		name: name + " - Est",
         		data: LineOfBestFitForEstimatedMetrics
         	});
+
+            if (newVMsAdjustment > 0)
+            {
+                console.log(EstimateLineWithNewVms);
+                chart.addSeries({
+                    name: name + " - Est With New VMs",
+                    data: EstimateLineWithNewVms
+                });
+            }
 		}
 
 		function countDowntillDoomsday(startpoint, capacityPoint, bufferedcapacityPoint, Delta)
@@ -219,7 +234,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
 			overview_string += "" + metricType + " " + queryType + " usage over " + timeFrame + " months<br>"
 			overview_string += "Days left till Capacity: " + time_left_in_days_till_Cap + "<br>";
 			overview_string += "Days left till Buffered Capacity: " + time_left_in_days_till_BuffedCap + "<br>";
-			overview_string += "Average Daily Growth: " + Delta;
+			overview_string += "Average Daily Growth: " + Delta.toFixed(2);
 			$("#countDownTillDoomsDay").html(overview_string);
 		}
 
