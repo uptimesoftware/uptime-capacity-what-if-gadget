@@ -11,6 +11,7 @@ $(function() {
 	var myChart = null;
 	var myChartDimensions = null;
 	var uptimeCapacitySettings = {};
+	var vmSettings = [];
 	var divsToDim = [ '#widgetChart', '#widgetSettings' ];
 
 	$("#widgetSettings").hide();
@@ -20,14 +21,17 @@ $(function() {
 	$('.time-frame-selector').change(settingChanged);
 	$('#widgetOptions input[name=metricType]:radio').change(settingChanged);
 	$('#capacitySlider').change(changeCapacityBuffer);
+	$('#addVm').click(addVm);
 
 
 	$("#closeSettings").click(function() {
+		settingChanged();
 		$("#widgetSettings").slideUp();
 	});
 
 	uptimeGadget.registerOnEditHandler(showEditPanel);
 	uptimeGadget.registerOnLoadHandler(function(onLoadData) {
+		console.log('starting');
 		myChartDimensions = toMyChartDimensions(onLoadData.dimensions);
 		if (onLoadData.hasPreloadedSettings()) {
 			goodLoad(onLoadData.settings);
@@ -69,6 +73,12 @@ $(function() {
 		uptimeCapacitySettings.queryType = $('#QueryTypeSelector').find(":selected").val();
 		uptimeCapacitySettings.capacityBuffer = $("#capacitySlider").val();
 		uptimeCapacitySettings.elementName = $('#elementId').find(":selected").text();
+
+
+		getAllWhatIfVMs();
+
+		uptimeCapacitySettings.vms = vmSettings;
+		console.log(uptimeCapacitySettings);
 		uptimeGadget.saveSettings(uptimeCapacitySettings).then(onGoodSave, onBadAjax);
 	}
 
@@ -154,6 +164,8 @@ $(function() {
 			$("#capacitySlider").val(settings.capacityBuffer);
 			$("#CurCapacityBuffer").html(settings.capacityBuffer + "%");
 			$("#" + settings.metricType).prop("checked", true);
+
+			setupWhatIfVMS(settings.vms);
 			$.extend(uptimeCapacitySettings, settings);
 			displayChart();
 		} else if (uptimeGadget.isOwner()) {
@@ -219,6 +231,44 @@ $(function() {
 		settingChanged();
 	}
 
+	function getAllWhatIfVMs() {
+		myvms = $("div.vm");
+		var newCpuTotal = 0;
+		var newMemTotal = 0;
+		vmSettings = [];
+		myvms.each( function(index, value) {
+			mycpu = $(this).find('input.Cpu').val();
+			mymem = $(this).find('input.Mem').val();
+			count = $(this).find('input.Count').val();
+
+			newSettingString = { 'cpu' : mycpu,
+							     'mem' : mymem,
+							     'count' : count };
+			vmSettings.push(newSettingString);
+
+			newCpuTotal = newCpuTotal + (mycpu * count);
+			newMemTotal = newMemTotal + (mymem * count);
+
+		});
+
+	}
+
+	function setupWhatIfVMS(settings) {
+		$("#vms").empty();
+		$.each(settings, function (index, value) {
+			newvm = '<div class="vm">Cpu:<input type="text" id="newCpu" class="what-if-setting Cpu" name="CpuUsage" value="' + value['cpu'] + '" size="4">';
+			newvm = newvm + 'Mem:<input type="text" id="newMem" class="what-if-setting Mem" name="MemUsage" value="' + value['mem'] + '" size="4">';
+			newvm = newvm + 'X<input type="text" id="vmCount" class="what-if-setting Count" name="vmCount" value="' + value['count'] + '" size="4"></div>';
+			$("#vms").append(newvm);
+		});
+
+
+	}
+
+	function addVm() {
+		newvm = '<div class="vm">Cpu:<input type="text" id="newCpu" class="what-if-setting Cpu" name="CpuUsage" value="0" size="4">Mem:<input type="text" id="newMem" class="what-if-setting Mem" name="MemUsage" value="0" size="4">X<input type="text" id="vmCount" class="what-if-setting Count" name="vmCount" value="1" size="4"></div>';
+		$("#vms").append(newvm);
+	}
 
 
 });

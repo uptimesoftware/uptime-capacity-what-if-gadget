@@ -91,6 +91,23 @@
 					<input type="radio" id="min" class="element-status-setting" name="metricType" value="min"> Min
 					<br/>
 				</div>
+			</br></br>
+				<div id="WhatIfSettings">
+					What If I add?
+					<div id="vms">
+						<div class="vm">
+						Cpu:<input type="text" id="newCpu" class="what-if-setting Cpu" name="CpuUsage" value="0" size="4">
+						Mem:<input type="text" id="newMem" class="what-if-setting Mem" name="MemUsage" value="0" size="4">
+						X<input type="text" id="vmCount" class="what-if-setting Count" name="vmCount" value="1" size="4">
+						</div>
+						<div class="vm">
+						Cpu:<input type="text" id="newCpu" class="what-if-setting Cpu" name="CpuUsage" value="0" size="4">
+						Mem:<input type="text" id="newMem" class="what-if-setting Mem" name="MemUsage" value="0" size="4">
+						X<input type="text" id="vmCount" class="what-if-setting Count" name="vmCount" value="1" size="4">
+						</div>
+					</div>
+					<button type="button" id="addVm">+</button>
+				</div>
 				<button id="closeSettings">Close</button>
 			</form>
 		</div>
