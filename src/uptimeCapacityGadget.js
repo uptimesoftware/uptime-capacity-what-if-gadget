@@ -146,7 +146,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
             LineOfBestFitForRealMetrics = [firstPoint, lastPoint];
 
             //this line starts where the actual leaves off, but shifted upwards by the newVMsAdjustment amount 
-            EstimateLineWithNewVms = [[lastPoint[0], lastPoint[1] + newVMsAdjustment ]];
+            EstimateLineWithNewVms = [lastPoint, [lastPoint[0]+1, lastPoint[1] + newVMsAdjustment ]];
 
 
             //we only need to figure out the capacity points if things are actualy trending upwards
@@ -155,7 +155,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                 //if there's a VM adjustment lets figure out those capacity points
                 if (newVMsAdjustment > 0)
                 {
-                    yStart = EstimateLineWithNewVms[0][1];
+                    yStart = EstimateLineWithNewVms[1][1];
 
                     if (yStart < capacityCap)
                     {
@@ -163,7 +163,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                         EstimateLineWithNewVms.push(capacityWithNewVms);
                     }
 
-                    if (yStart < capacityCapBuffered)
+                    if (yStart < capacityCapBuffered && capacityBuffer != 100)
                     {
                         bufferedcapacityWithNewVms = figureOutCapacity(capacityCapBuffered, last_Xvalue, EstimateLineWithNewVms[0][1], xDelta, yDelta);
                         EstimateLineWithNewVms.push(bufferedcapacityWithNewVms);
