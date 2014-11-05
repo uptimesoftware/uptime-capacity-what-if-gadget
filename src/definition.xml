@@ -84,9 +84,9 @@
 				<div id="MetricType">
 					Based on the daily what?:
 					<br/>
-					<input type="radio" checked id="avg" class="element-status-setting" name="metricType" value="avg"> Average
-					<br/>
 					<input type="radio" id="max" class="element-status-setting" name="metricType" value="max"> Max
+					<br/>
+					<input type="radio" checked id="avg" class="element-status-setting" name="metricType" value="avg"> Average
 					<br/>
 					<input type="radio" id="min" class="element-status-setting" name="metricType" value="min"> Min
 					<br/>
@@ -95,16 +95,6 @@
 				<div id="WhatIfSettings">
 					What If I add?
 					<div id="vms">
-						<div class="vm">
-						Cpu:<input type="text" id="newCpu" class="what-if-setting Cpu" name="CpuUsage" value="0" size="4">GHz -
-						Mem:<input type="text" id="newMem" class="what-if-setting Mem" name="MemUsage" value="0" size="4">GB - 
-						X<input type="text" id="vmCount" class="what-if-setting Count" name="vmCount" value="1" size="4">
-						</div>
-						<div class="vm">
-						Cpu:<input type="text" id="newCpu" class="what-if-setting Cpu" name="CpuUsage" value="0" size="4">GHz
-						Mem:<input type="text" id="newMem" class="what-if-setting Mem" name="MemUsage" value="0" size="4">GB -
-						X<input type="text" id="vmCount" class="what-if-setting Count" name="vmCount" value="1" size="4">
-						</div>
 					</div>
 					<button type="button" id="addVm">+</button>
 				</div>
