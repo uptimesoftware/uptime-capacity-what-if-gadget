@@ -92,10 +92,10 @@
 				</div>
 			</br></br>
 				<div id="WhatIfSettings">
-					What If I add?
+					What If I add? <button type="button" id="addVm">+</button>
 					<div id="vms">
 					</div>
-					<button type="button" id="addVm">+</button>
+
 				</div>
 				<button id="closeSettings">Close</button>
 			</form>

@@ -271,9 +271,9 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
 
             overview_string = "";
             overview_string += '<div id="infoTitle">' + metricType + " " + queryType + " usage over " + timeFrame + " months</div><br>";
-            overview_string += '<div id="infoText">Average Daily Growth: ' + Delta.toFixed(2) + " " + unit + "</br></br>";
+            overview_string += '<div class="infoText">Average Daily Growth: ' + Delta.toFixed(2) + " " + unit + "</br></br>";
 
-            overview_string += '<div id="infoCol1">';
+            overview_string += '<div id="infoCol1" class="infoText"> At Current Growth:<hr>';
 
             //real capacity at current growth
             if (capPoint)
@@ -281,7 +281,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                 endtime = capPoint[0];
                 time_left =  (endtime - starttime);
                 time_left_in_days_till_Cap = Math.round(time_left / 1000 / 60 / 60 / 24);
-                overview_string += 'Days left till  Capacity at current Growth: ' + time_left_in_days_till_Cap + "<br>";
+                overview_string += 'Days left till  Capacity: ' + time_left_in_days_till_Cap + "<br>";
 
             }
 
@@ -291,32 +291,36 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                 endtime = bufcapPoint[0];
                 time_left =  (endtime - starttime);
                 time_left_in_days_till_BuffedCap = Math.round(time_left / 1000 / 60 / 60 / 24);
-                overview_string += "Days left till " + capacityBuffer + "% Capacity current Growth: " + time_left_in_days_till_BuffedCap + "<br>";
+                overview_string += "Days left till " + capacityBuffer + "% Capacity: " + time_left_in_days_till_BuffedCap + "<br>";
             }
-            overview_string += '</div><div id="infoCol2">';
-            //real capacity with new VMs
-            if (withVmscapPoint)
+
+
+            if (newVMsAdjustment > 0)
             {
-                endtime = withVmscapPoint[0];
-                time_left =  (endtime - starttime);
-                time_left_in_days_till_Cap_with_New_VMs = Math.round(time_left / 1000 / 60 / 60 / 24);
-                overview_string += 'Days left till Capacity with New VMs: ' + time_left_in_days_till_Cap_with_New_VMs + "<br>";
+	            overview_string += '</div><div id="infoCol2" class="infoText">With New Vms<hr>';
+	            //real capacity with new VMs
+	            if (withVmscapPoint)
+	            {
+	                endtime = withVmscapPoint[0];
+	                time_left =  (endtime - starttime);
+	                time_left_in_days_till_Cap_with_New_VMs = Math.round(time_left / 1000 / 60 / 60 / 24);
+	                overview_string += 'Days left till Capacity: ' + time_left_in_days_till_Cap_with_New_VMs + "<br>";
 
-            }
-                
+	            }
+	                
 
-            //buffered capacity with new VMs
-            if (withVmsBufcapPoint)
-            {
-                endtime = withVmsBufcapPoint[0];
-                time_left =  (endtime - starttime);
-                time_left_in_days_till_BuffedCap_with_New_VMs = Math.round(time_left / 1000 / 60 / 60 / 24);
-                overview_string += "Days left till " + capacityBuffer + "% Capacity with New VMs: " + time_left_in_days_till_BuffedCap_with_New_VMs + "<br>";
-            }
+	            //buffered capacity with new VMs
+	            if (withVmsBufcapPoint)
+	            {
+	                endtime = withVmsBufcapPoint[0];
+	                time_left =  (endtime - starttime);
+	                time_left_in_days_till_BuffedCap_with_New_VMs = Math.round(time_left / 1000 / 60 / 60 / 24);
+	                overview_string += "Days left till " + capacityBuffer + "% Capacity: " + time_left_in_days_till_BuffedCap_with_New_VMs + "<br>";
+	            }
 
 
-            overview_string += "</div>";
-    
+	            overview_string += "</div>";
+    		}
             $("#countDownTillDoomsDay").html(overview_string);
         }
 

@@ -288,6 +288,7 @@ $(function() {
     }
 
     function addVm() {
+    	settingChanged();
         $("#vms").append(newvmstring);
     }
 

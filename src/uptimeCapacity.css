@@ -1,6 +1,26 @@
 #countDownTillDoomsDay {
+	text-align: center;
+}
+
+
+#infoTitle {
 	font-weight: bold;
 	font-size:	200%;
-	text-align: center;
 
+}
+
+.infoText {
+	font-size: 150%;
+}
+
+#infoCol1 {
+	float: left;
+}
+
+#infoCol2 {
+	float: right;
+}
+
+#widgetSettings {
+	font-size: 150%;
 }
