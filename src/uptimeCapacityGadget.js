@@ -55,7 +55,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                 xAxis: {type: 'datetime',
                     title: {enabled: true,
                     text: ""}},
-                yAxis: {min: 0,
+                yAxis: {
                     title: {enabled: false,
                     text: ""}},
                 plotOptions: {spline: {marker: {enabled: false}},
