@@ -96,21 +96,27 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
         }
 
         function addCapacityLines(data) {
+            //draw the various capacity and estimated usage lines
 
-            firstPoint = data['series'][0];
 
-            valueLength = data['series'].length - 1;
-            lastPoint = data['series'][valueLength];
+
+            //get the first and last points from the time series data
+            timeseries = data['series'];
+            firstPoint = timeseries[0];
+            valueLength = timeseries.length - 1;
+            lastPoint = timeseries[valueLength];
 
             dataname = data['name'];
 
+            last_Xvalue = lastPoint[0];
+            last_Yvalue = lastPoint[1];
 
-            timeseries = data['series'];
+
 
 
             xDeltaTotal = 0;
             yDeltaTotal = 0;
-
+            //total up the difference between all the daily points
             $.each(timeseries, function(index, value) {
                 if (index >= 1)
                 {
@@ -121,80 +127,109 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                 }
             });
 
-
-            xDelta = xDeltaTotal / (timeseries.length -1);
+            //get the average delta for both X and Y
+            xDelta = xDeltaTotal / (timeseries.length -1);//should be one day in ms
             yDelta = yDeltaTotal / (timeseries.length -1);
 
+            //get the total capacity value from our json data and figure out the buffered capacity cap
             capacityCap = data['capacity'];
             capacityCapBuffered = data['capacity'] * ( capacityBuffer / 100);
 
-            LineOfBestFitForRealMetrics = [firstPoint, lastPoint];
 
+            //setup the various lines we'll need to draw
+            CapacityLine = [[firstPoint[0], capacityCap]];
 
-            last_Xvalue = lastPoint[0];
-            last_Yvalue = lastPoint[1];
-            
-            CapacityLine = [[firstPoint[0], capacityCap],
-                            [lastPoint[0], capacityCap]];
-
-            BufferedCapacityLine = [[firstPoint[0], capacityCapBuffered],
-                                    [lastPoint[0], capacityCapBuffered]];
+            BufferedCapacityLine = [[firstPoint[0], capacityCapBuffered]];
 
             LineOfBestFitForEstimatedMetrics = [lastPoint];
 
-            if (newVMsAdjustment > 0 && yDelta > 0)
+            LineOfBestFitForRealMetrics = [firstPoint, lastPoint];
+
+            //this line starts where the actual leaves off, but shifted upwards by the newVMsAdjustment amount 
+            EstimateLineWithNewVms = [[lastPoint[0], lastPoint[1] + newVMsAdjustment ]];
+
+
+            //we only need to figure out the capacity points if things are actualy trending upwards
+            if ( yDelta > 0 )
             {
-                EstimateLineWithNewVms = [[lastPoint[0], lastPoint[1] + newVMsAdjustment ]];
-                capacityWithNewVms = figureOutCapacity(capacityCap, last_Xvalue, EstimateLineWithNewVms[0][1] , xDelta, yDelta);
-//swapped xs and ys up untill here
-                bufferedcapacityWithNewVms = figureOutCapacity(capacityCapBuffered, last_Xvalue, EstimateLineWithNewVms[0][1], xDelta, yDelta);
-                
-                EstimateLineWithNewVms.push(capacityWithNewVms, bufferedcapacityWithNewVms);
-            }
-
-
-
-            if ( yDelta > 0 && capacityCap > last_Yvalue)
-            {
-                BufferedCapacityPoint = figureOutCapacity(capacityCapBuffered, last_Xvalue, last_Yvalue, xDelta, yDelta);
-                CapacityPoint = figureOutCapacity(capacityCap, last_Xvalue, last_Yvalue, xDelta, yDelta);
-            
-                CapacityLine.push(CapacityPoint);
-                BufferedCapacityLine.push(BufferedCapacityPoint);
-
-
-
-                countDowntillDoomsday(lastPoint, CapacityPoint, BufferedCapacityPoint, yDelta, newVMsAdjustment, data['unit']);
-
-                if (BufferedCapacityPoint[1] > CapacityPoint[1])
+                //if there's a VM adjustment lets figure out those capacity points
+                if (newVMsAdjustment > 0)
                 {
-                    LineOfBestFitForEstimatedMetrics.push(CapacityPoint);
-                    LineOfBestFitForEstimatedMetrics.push(BufferedCapacityPoint);
-                    CapacityLine.push([BufferedCapacityPoint[0], CapacityPoint[1]]);
+                    yStart = EstimateLineWithNewVms[0][1];
+
+                    if (yStart < capacityCap)
+                    {
+                        capacityWithNewVms = figureOutCapacity(capacityCap, last_Xvalue, yStart , xDelta, yDelta);
+                        EstimateLineWithNewVms.push(capacityWithNewVms);
+                    }
+
+                    if (yStart < capacityCapBuffered)
+                    {
+                        bufferedcapacityWithNewVms = figureOutCapacity(capacityCapBuffered, last_Xvalue, EstimateLineWithNewVms[0][1], xDelta, yDelta);
+                        EstimateLineWithNewVms.push(bufferedcapacityWithNewVms);
+                    }
 
                 }
-                else
+
+
+                //if the starting point for our estimated usage line is below our capacity Cap
+                if( capacityCap > last_Yvalue)
                 {
-                    LineOfBestFitForEstimatedMetrics.push(BufferedCapacityPoint);
-                    LineOfBestFitForEstimatedMetrics.push(CapacityPoint);
-                    BufferedCapacityLine.push([CapacityPoint[0], BufferedCapacityPoint[1]]);
+                    CapacityPoint = figureOutCapacity(capacityCap, last_Xvalue, last_Yvalue, xDelta, yDelta);
+                    CapacityLine.push(CapacityPoint);
+                    
+                    BufferedCapacityPoint = figureOutCapacity(capacityCapBuffered, last_Xvalue, last_Yvalue, xDelta, yDelta);
+                    BufferedCapacityLine.push(BufferedCapacityPoint);
+
+                    //pass all these points along, so that we can populate the info panel.
+                    countDowntillDoomsday(lastPoint, CapacityPoint, BufferedCapacityPoint, yDelta, newVMsAdjustment, data['unit']);
+
+                    //fill out the rest of the capacity Lines
+                    if (BufferedCapacityPoint[1] > CapacityPoint[1])
+                    {
+                        //if the BufferedCapacity is greater then our real capacity
+                        //then the CapacityPoint will naturely come first on the LineOfBestFit
+                        LineOfBestFitForEstimatedMetrics.push(CapacityPoint);
+                        LineOfBestFitForEstimatedMetrics.push(BufferedCapacityPoint);
+                        //this also means that the BufferedCapcityLine is longer
+                        //so we need to add another point to the real Capacity Line
+                        CapacityLine.push([BufferedCapacityPoint[0], CapacityPoint[1]]);
+
+                    }
+                    else
+                    {
+                        //otherwise if buffered capacity is less then real capacity
+                        //then the buffered capacity point comes first
+                        LineOfBestFitForEstimatedMetrics.push(BufferedCapacityPoint);
+                        LineOfBestFitForEstimatedMetrics.push(CapacityPoint);
+                        //add an extra point to the BufferedCapacityLine
+                        BufferedCapacityLine.push([CapacityPoint[0], BufferedCapacityPoint[1]]);
+                    }
                 }
             }
+            //if things aren't trending upwards then just extend our capacity Lines and fill out the info panel
             else
             {
+                CapacityLine.push([lastPoint[0], capacityCap]);
+                BufferedCapacityLine.push([lastPoint[0], capacityCapBuffered]);
                 justAddTitletoDoomsday(yDelta, data['unit']);
             }
 
 
+            //draw the actual lines on the chart
             chart.addSeries({
                 name: "Capacity",
                 data: CapacityLine
             });
 
-            chart.addSeries({
-                name: "Buffered Capacity",
-                data: BufferedCapacityLine
-            });
+            //only draw the buffered Capacity Line if it's different then the real capacity
+            if (capacityBuffer != 100)
+            {
+                chart.addSeries({
+                    name: "Buffered Capacity",
+                    data: BufferedCapacityLine
+                });
+            }
 
             chart.addSeries({
                 name: dataname + " - Usage",
@@ -206,9 +241,9 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                 data: LineOfBestFitForEstimatedMetrics
             });
 
-            if (newVMsAdjustment > 0 && xDelta > 0)
+            //only draw the VM line if there's an Adjustment
+            if (newVMsAdjustment > 0)
             {
-                console.log(EstimateLineWithNewVms);
                 chart.addSeries({
                     name: dataname + " - Est With New VMs",
                     data: EstimateLineWithNewVms
