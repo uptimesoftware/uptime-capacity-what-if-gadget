@@ -3,7 +3,7 @@ $(function() {
     var currentURL = $("script#ownScript").attr("src");
     var getMetricsPath = currentURL.substr(0,$("script#ownScript").attr("src").lastIndexOf("/")+1) + 'getmetrics.php';
     var getDropDownsPath = currentURL.substr(0,$("script#ownScript").attr("src").lastIndexOf("/")+1) + 'getdropdowns.php';
-    var newvmstring = '<div class="vm">Cpu:<input type="text" id="newCpu" class="what-if-setting Cpu" name="CpuUsage" value="0" size="4">GHz  Mem:<input type="text" id="newMem" class="what-if-setting Mem" name="MemUsage" value="0" size="4">GB - X<input type="text" id="vmCount" class="what-if-setting Count" name="vmCount" value="1" size="4"><input type="button" class="remove-vm-button" value="-"></div>';
+    var newvmstring = '<div class="vm">CPU:<input type="text" id="newCpu" class="what-if-setting Cpu" name="CpuUsage" value="0" size="4">GHz - Mem:<input type="text" id="newMem" class="what-if-setting Mem" name="MemUsage" value="0" size="4">GB - X<input type="text" id="vmCount" class="what-if-setting Count" name="vmCount" value="1" size="4"><input type="button" class="remove-vm-button" value="-"></div>';
 
     var date = new Date();
     var uptimeOffset = date.getTimezoneOffset()*60;
@@ -270,8 +270,8 @@ $(function() {
         if (myvmsettings)
         {
             $.each(myvmsettings, function (index, value) {
-                newvm = '<div class="vm">Cpu:<input type="text" id="newCpu" class="what-if-setting Cpu" name="CpuUsage" value="' + value['cpu'] + '" size="4">GHz ';
-                newvm += 'Mem:<input type="text" id="newMem" class="what-if-setting Mem" name="MemUsage" value="' + value['mem'] + '" size="4">GB - ';
+                newvm = '<div class="vm">CPU:<input type="text" id="newCpu" class="what-if-setting Cpu" name="CpuUsage" value="' + value['cpu'] + '" size="4">GHz ';
+                newvm += '- Mem:<input type="text" id="newMem" class="what-if-setting Mem" name="MemUsage" value="' + value['mem'] + '" size="4">GB - ';
                 newvm += 'X<input type="text" id="vmCount" class="what-if-setting Count" name="vmCount" value="' + value['count'] + '" size="4">';
                 newvm += '<input type="button" class="remove-vm-button" value="-"></div>';
                 $("#vms").append(newvm);
