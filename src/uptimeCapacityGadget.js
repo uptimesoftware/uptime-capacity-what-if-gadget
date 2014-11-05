@@ -114,8 +114,8 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
         	$.each(timeseries, function(index, value) {
         		if (index >= 1)
         		{
-        			xDelta = value[1] - timeseries[index - 1][1];
-        			yDelta = value[0] - timeseries[index - 1][0];
+        			xDelta = value[0] - timeseries[index - 1][0];
+        			yDelta = value[1] - timeseries[index - 1][1];
         			xDeltaTotal = xDeltaTotal + xDelta;
         			yDeltaTotal = yDeltaTotal + yDelta;
         		}
@@ -131,8 +131,8 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
         	LineOfBestFitForRealMetrics = [firstPoint, lastPoint];
 
 
-     		last_Xvalue = lastPoint[1];
-        	last_Yvalue = lastPoint[0];
+     		last_Xvalue = lastPoint[0];
+        	last_Yvalue = lastPoint[1];
         	
         	CapacityLine = [[firstPoint[0], capacityCap],
 							[lastPoint[0], capacityCap]];
@@ -142,19 +142,19 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
 
 			LineOfBestFitForEstimatedMetrics = [lastPoint];
 
-		    if (newVMsAdjustment > 0 && xDelta > 0)
+		    if (newVMsAdjustment > 0 && yDelta > 0)
             {
                 EstimateLineWithNewVms = [[lastPoint[0], lastPoint[1] + newVMsAdjustment ]];
-                capacityWithNewVms = figureOutCapacity(capacityCap, EstimateLineWithNewVms[0][1], last_Yvalue , xDelta, yDelta);
-
-                bufferedcapacityWithNewVms = figureOutCapacity(capacityCapBuffered, EstimateLineWithNewVms[0][1], last_Yvalue, xDelta, yDelta);
+                capacityWithNewVms = figureOutCapacity(capacityCap, last_Xvalue, EstimateLineWithNewVms[0][1] , xDelta, yDelta);
+//swapped xs and ys up untill here
+                bufferedcapacityWithNewVms = figureOutCapacity(capacityCapBuffered, last_Xvalue, EstimateLineWithNewVms[0][1], xDelta, yDelta);
                 
                 EstimateLineWithNewVms.push(capacityWithNewVms, bufferedcapacityWithNewVms);
             }
 
 
 
-        	if ( xDelta > 0 && capacityCap > lastPoint[1])
+        	if ( yDelta > 0 && capacityCap > last_Yvalue)
    			{
    			   	BufferedCapacityPoint = figureOutCapacity(capacityCapBuffered, last_Xvalue, last_Yvalue, xDelta, yDelta);
         		CapacityPoint = figureOutCapacity(capacityCap, last_Xvalue, last_Yvalue, xDelta, yDelta);
@@ -164,9 +164,9 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
 
 
 
-				countDowntillDoomsday(lastPoint, CapacityPoint, BufferedCapacityPoint, xDelta, newVMsAdjustment, data['unit']);
+				countDowntillDoomsday(lastPoint, CapacityPoint, BufferedCapacityPoint, yDelta, newVMsAdjustment, data['unit']);
 
-				if (BufferedCapacityPoint[0] > CapacityPoint[0])
+				if (BufferedCapacityPoint[1] > CapacityPoint[1])
 				{
 					LineOfBestFitForEstimatedMetrics.push(CapacityPoint);
 					LineOfBestFitForEstimatedMetrics.push(BufferedCapacityPoint);
@@ -182,7 +182,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
 			}
 			else
 			{
-				justAddTitletoDoomsday(xDelta, data['unit']);
+				justAddTitletoDoomsday(yDelta, data['unit']);
 			}
 
 
@@ -272,10 +272,10 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
 		function figureOutCapacity( targetCapacity, startX, startY, deltaX, deltaY )
 		{
 
-			CapacityLeft = targetCapacity - startX;
-        	timeToGo = CapacityLeft / deltaX;
-        	timeToGoInMS = timeToGo * deltaY;
-        	actualTime = timeToGoInMS + startY;
+			CapacityLeft = targetCapacity - startY;
+        	timeToGo = CapacityLeft / deltaY;
+        	timeToGoInMS = timeToGo * deltaX;
+        	actualTime = timeToGoInMS + startX;
 
         	return [actualTime, targetCapacity ];
 
