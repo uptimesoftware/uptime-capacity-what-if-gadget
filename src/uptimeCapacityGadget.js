@@ -281,7 +281,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                 endtime = capPoint[0];
                 time_left =  (endtime - starttime);
                 time_left_in_days_till_Cap = Math.round(time_left / 1000 / 60 / 60 / 24);
-                overview_string += 'Days left till Real Capacity at current Growth: ' + time_left_in_days_till_Cap + "<br>";
+                overview_string += 'Days left till  Capacity at current Growth: ' + time_left_in_days_till_Cap + "<br>";
 
             }
 
@@ -291,7 +291,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                 endtime = bufcapPoint[0];
                 time_left =  (endtime - starttime);
                 time_left_in_days_till_BuffedCap = Math.round(time_left / 1000 / 60 / 60 / 24);
-                overview_string += "Days left till Buffered Capacity current Growth: " + time_left_in_days_till_BuffedCap + "<br>";
+                overview_string += "Days left till " + capacityBuffer + "% Capacity current Growth: " + time_left_in_days_till_BuffedCap + "<br>";
             }
             overview_string += '</div><div id="infoCol2">';
             //real capacity with new VMs
@@ -300,7 +300,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                 endtime = withVmscapPoint[0];
                 time_left =  (endtime - starttime);
                 time_left_in_days_till_Cap_with_New_VMs = Math.round(time_left / 1000 / 60 / 60 / 24);
-                overview_string += 'Days left till Real Capacity with New VMs: ' + time_left_in_days_till_Cap_with_New_VMs + "<br>";
+                overview_string += 'Days left till Capacity with New VMs: ' + time_left_in_days_till_Cap_with_New_VMs + "<br>";
 
             }
                 
@@ -311,7 +311,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                 endtime = withVmsBufcapPoint[0];
                 time_left =  (endtime - starttime);
                 time_left_in_days_till_BuffedCap_with_New_VMs = Math.round(time_left / 1000 / 60 / 60 / 24);
-                overview_string += "Days left till Buffered Capacity with New VMs: " + time_left_in_days_till_BuffedCap_with_New_VMs + "<br>";
+                overview_string += "Days left till " + capacityBuffer + "% Capacity with New VMs: " + time_left_in_days_till_BuffedCap_with_New_VMs + "<br>";
             }
 
 
