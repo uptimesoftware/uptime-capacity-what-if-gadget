@@ -148,6 +148,11 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
             //this line starts where the actual leaves off, but shifted upwards by the newVMsAdjustment amount 
             EstimateLineWithNewVms = [lastPoint, [lastPoint[0]+1, lastPoint[1] + newVMsAdjustment ]];
 
+            //setup some empty points as well
+            capacityWithNewVms = null;
+            bufferedcapacityWithNewVms = null;
+            CapacityPoint = null;
+            BufferedCapacityPoint = null;
 
             //we only need to figure out the capacity points if things are actualy trending upwards
             if ( yDelta > 0 )
@@ -163,11 +168,13 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                         EstimateLineWithNewVms.push(capacityWithNewVms);
                     }
 
+
                     if (yStart < capacityCapBuffered && capacityBuffer != 100)
                     {
-                        bufferedcapacityWithNewVms = figureOutCapacity(capacityCapBuffered, last_Xvalue, EstimateLineWithNewVms[0][1], xDelta, yDelta);
+                        bufferedcapacityWithNewVms = figureOutCapacity(capacityCapBuffered, last_Xvalue, yStart, xDelta, yDelta);
                         EstimateLineWithNewVms.push(bufferedcapacityWithNewVms);
                     }
+
 
                 }
 
@@ -181,8 +188,9 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                     BufferedCapacityPoint = figureOutCapacity(capacityCapBuffered, last_Xvalue, last_Yvalue, xDelta, yDelta);
                     BufferedCapacityLine.push(BufferedCapacityPoint);
 
+                     
                     //pass all these points along, so that we can populate the info panel.
-                    countDowntillDoomsday(lastPoint, CapacityPoint, BufferedCapacityPoint, yDelta, newVMsAdjustment, data['unit']);
+                    fillInInfoPanel(lastPoint, CapacityPoint, BufferedCapacityPoint, capacityWithNewVms, bufferedcapacityWithNewVms, yDelta, data['unit']);
 
                     //fill out the rest of the capacity Lines
                     if (BufferedCapacityPoint[1] > CapacityPoint[1])
@@ -219,6 +227,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
             //draw the actual lines on the chart
             chart.addSeries({
                 name: "Capacity",
+                zindex: 1,
                 data: CapacityLine
             });
 
@@ -227,17 +236,20 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
             {
                 chart.addSeries({
                     name: "Buffered Capacity",
+                    zindex: 1,
                     data: BufferedCapacityLine
                 });
             }
 
             chart.addSeries({
                 name: dataname + " - Usage",
+                zindex: 2,
                 data: LineOfBestFitForRealMetrics
             });
 
             chart.addSeries({
                 name: dataname + " - Est",
+                zindex: 2,
                 data: LineOfBestFitForEstimatedMetrics
             });
 
@@ -246,49 +258,63 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
             {
                 chart.addSeries({
                     name: dataname + " - Est With New VMs",
+                    zindex: 3,
                     data: EstimateLineWithNewVms
                 });
             }
         }
 
-        function countDowntillDoomsday(startpoint, capacityPoint, bufferedcapacityPoint, Delta, VmsAdjustment, unit)
+        function fillInInfoPanel(startpoint, capPoint, bufcapPoint, withVmscapPoint, withVmsBufcapPoint, Delta, unit)
         {
             $("#countDownTillDoomsDay").html("");
             starttime = startpoint[0];
-            endtime = capacityPoint[0];
-
-            //real capacity at current growth
-            time_left =  (endtime - starttime);
-            time_left_in_days_till_Cap = Math.round(time_left / 1000 / 60 / 60 / 24);
-
-            //real capacity with new VMs
-            time_left =  (endtime - starttime);
-            time_left_in_days_till_Cap_with_New_VMs = Math.round(time_left / 1000 / 60 / 60 / 24);
-
-            //buffered capacity at current growth
-            endtime = bufferedcapacityPoint[0];
-            time_left =  (endtime - starttime);
-            time_left_in_days_till_BuffedCap = Math.round(time_left / 1000 / 60 / 60 / 24);
-
-            //buffered capacity with new VMs
-            endtime = bufferedcapacityPoint[0];
-            time_left =  (endtime - starttime);
-            time_left_in_days_till_BuffedCap_with_New_VMs = Math.round(time_left / 1000 / 60 / 60 / 24);
-
 
             overview_string = "";
             overview_string += '<div id="infoTitle">' + metricType + " " + queryType + " usage over " + timeFrame + " months</div><br>";
-
             overview_string += '<div id="infoText">Average Daily Growth: ' + Delta.toFixed(2) + " " + unit + "</br></br>";
-            overview_string += '<div id="infoCol1"> Days left till Real Capacity at current Growth: ' + time_left_in_days_till_Cap + "<br>";
-            overview_string += "Days left till Buffered Capacity current Growth: " + time_left_in_days_till_BuffedCap + "<br></div>";
 
-            if (VmsAdjustment > 0)
+            overview_string += '<div id="infoCol1">';
+
+            //real capacity at current growth
+            if (capPoint)
             {
-        
-                overview_string += '<div id="infoCol2"> Days left till Real Capacity with New VMs: ' + time_left_in_days_till_Cap_with_New_VMs + "<br>";
-                overview_string += "Days left till Buffered Capacity with New VMs: " + time_left_in_days_till_BuffedCap_with_New_VMs + "<br></div>";
+                endtime = capPoint[0];
+                time_left =  (endtime - starttime);
+                time_left_in_days_till_Cap = Math.round(time_left / 1000 / 60 / 60 / 24);
+                overview_string += 'Days left till Real Capacity at current Growth: ' + time_left_in_days_till_Cap + "<br>";
+
             }
+
+            //buffered capacity at current growth
+            if (bufcapPoint && capacityBuffer != 100)
+            {
+                endtime = bufcapPoint[0];
+                time_left =  (endtime - starttime);
+                time_left_in_days_till_BuffedCap = Math.round(time_left / 1000 / 60 / 60 / 24);
+                overview_string += "Days left till Buffered Capacity current Growth: " + time_left_in_days_till_BuffedCap + "<br>";
+            }
+            overview_string += '</div><div id="infoCol2">';
+            //real capacity with new VMs
+            if (withVmscapPoint)
+            {
+                endtime = withVmscapPoint[0];
+                time_left =  (endtime - starttime);
+                time_left_in_days_till_Cap_with_New_VMs = Math.round(time_left / 1000 / 60 / 60 / 24);
+                overview_string += 'Days left till Real Capacity with New VMs: ' + time_left_in_days_till_Cap_with_New_VMs + "<br>";
+
+            }
+                
+
+            //buffered capacity with new VMs
+            if (withVmsBufcapPoint)
+            {
+                endtime = withVmsBufcapPoint[0];
+                time_left =  (endtime - starttime);
+                time_left_in_days_till_BuffedCap_with_New_VMs = Math.round(time_left / 1000 / 60 / 60 / 24);
+                overview_string += "Days left till Buffered Capacity with New VMs: " + time_left_in_days_till_BuffedCap_with_New_VMs + "<br>";
+            }
+
+
             overview_string += "</div>";
     
             $("#countDownTillDoomsDay").html(overview_string);
