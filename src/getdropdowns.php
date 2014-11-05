@@ -87,7 +87,7 @@ elseif ($query_type == "getVMobjects")
     $getVMobjectsSql = 'select vmware_object_id, display_name
 
      from vmware_object
-     where mor_type in ("ClusterComputeResource","HostSystem","Datastore" )  ';
+     where mor_type in ("ClusterComputeResource","HostSystem" )  ';
 
     $results = $db->execQuery($getVMobjectsSql);
     foreach ($results as $row)
