@@ -19,14 +19,15 @@ $(function() {
 	$('.query-type-setting').change(settingChanged);
 	$('.element-status-setting').change(settingChanged);
 	$('.time-frame-selector').change(settingChanged);
+	$('.what-if-setting').change(settingChanged);
 	$('#widgetOptions input[name=metricType]:radio').change(settingChanged);
 	$('#capacitySlider').change(changeCapacityBuffer);
+
 	$('#addVm').click(addVm);
 
 
 	$("#closeSettings").click(function() {
-		vmtotals = getWhatIfVMsTotals();
-		console.log(vmtotals);
+		settingChanged();
 		$("#widgetSettings").slideUp();
 	});
 
@@ -266,8 +267,8 @@ $(function() {
 		if (myvmsettings)
 		{
 			$.each(myvmsettings, function (index, value) {
-				newvm = '<div class="vm">Cpu:<input type="text" id="newCpu" class="what-if-setting Cpu" name="CpuUsage" value="' + value['cpu'] + '" size="4">';
-				newvm = newvm + 'Mem:<input type="text" id="newMem" class="what-if-setting Mem" name="MemUsage" value="' + value['mem'] + '" size="4">';
+				newvm = '<div class="vm">Cpu:<input type="text" id="newCpu" class="what-if-setting Cpu" name="CpuUsage" value="' + value['cpu'] + '" size="4">GHz ';
+				newvm = newvm + 'Mem:<input type="text" id="newMem" class="what-if-setting Mem" name="MemUsage" value="' + value['mem'] + '" size="4">GB - ';
 				newvm = newvm + 'X<input type="text" id="vmCount" class="what-if-setting Count" name="vmCount" value="' + value['count'] + '" size="4"></div>';
 				$("#vms").append(newvm);
 			});
@@ -277,7 +278,7 @@ $(function() {
 	}
 
 	function addVm() {
-		newvm = '<div class="vm">Cpu:<input type="text" id="newCpu" class="what-if-setting Cpu" name="CpuUsage" value="0" size="4">Mem:<input type="text" id="newMem" class="what-if-setting Mem" name="MemUsage" value="0" size="4">X<input type="text" id="vmCount" class="what-if-setting Count" name="vmCount" value="1" size="4"></div>';
+		newvm = '<div class="vm">Cpu:<input type="text" id="newCpu" class="what-if-setting Cpu" name="CpuUsage" value="0" size="4">GHz  Mem:<input type="text" id="newMem" class="what-if-setting Mem" name="MemUsage" value="0" size="4">GB - X<input type="text" id="vmCount" class="what-if-setting Count" name="vmCount" value="1" size="4"></div>';
 		$("#vms").append(newvm);
 	}
 

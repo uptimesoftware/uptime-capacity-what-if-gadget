@@ -142,6 +142,16 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
 
 			LineOfBestFitForEstimatedMetrics = [lastPoint];
 
+		    if (newVMsAdjustment > 0 && xDelta > 0)
+            {
+                EstimateLineWithNewVms = [[lastPoint[0], lastPoint[1] + newVMsAdjustment ]];
+                capacityWithNewVms = figureOutCapacity(capacityCap, EstimateLineWithNewVms[0][1], last_Yvalue , xDelta, yDelta);
+
+                bufferedcapacityWithNewVms = figureOutCapacity(capacityCapBuffered, EstimateLineWithNewVms[0][1], last_Yvalue, xDelta, yDelta);
+                
+                EstimateLineWithNewVms.push(capacityWithNewVms, bufferedcapacityWithNewVms);
+            }
+
 
 
         	if ( xDelta > 0 && capacityCap > lastPoint[1])
@@ -152,17 +162,9 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
         		CapacityLine.push(CapacityPoint);
         		BufferedCapacityLine.push(BufferedCapacityPoint);
 
-                if (newVMsAdjustment > 0)
-                {
-                    EstimateLineWithNewVms = [[lastPoint[0], lastPoint[1] + newVMsAdjustment ]];
-                    capacityWithNewVms = figureOutCapacity(capacityCap, EstimateLineWithNewVms[0][1], last_Yvalue , xDelta, yDelta);
 
-                    bufferedcapacityWithNewVms = figureOutCapacity(capacityCapBuffered, EstimateLineWithNewVms[0][1], last_Yvalue, xDelta, yDelta);
-                    
-                    EstimateLineWithNewVms.push(capacityWithNewVms, bufferedcapacityWithNewVms);
-                }
 
-				countDowntillDoomsday(lastPoint, CapacityPoint, BufferedCapacityPoint, xDelta);
+				countDowntillDoomsday(lastPoint, CapacityPoint, BufferedCapacityPoint, xDelta, newVMsAdjustment, data['unit']);
 
 				if (BufferedCapacityPoint[0] > CapacityPoint[0])
 				{
@@ -180,7 +182,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
 			}
 			else
 			{
-				justAddTitletoDoomsday();
+				justAddTitletoDoomsday(xDelta, data['unit']);
 			}
 
 
@@ -204,7 +206,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
         		data: LineOfBestFitForEstimatedMetrics
         	});
 
-            if (newVMsAdjustment > 0)
+            if (newVMsAdjustment > 0 && xDelta > 0)
             {
                 console.log(EstimateLineWithNewVms);
                 chart.addSeries({
@@ -214,35 +216,55 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
             }
 		}
 
-		function countDowntillDoomsday(startpoint, capacityPoint, bufferedcapacityPoint, Delta)
+		function countDowntillDoomsday(startpoint, capacityPoint, bufferedcapacityPoint, Delta, VmsAdjustment, unit)
 		{
 			$("#countDownTillDoomsDay").html("");
 			starttime = startpoint[0];
 			endtime = capacityPoint[0];
 
-			//regular capacity
+			//real capacity at current growth
 			time_left =  (endtime - starttime);
 			time_left_in_days_till_Cap = Math.round(time_left / 1000 / 60 / 60 / 24);
 
-			//buffered capacity
+			//real capacity with new VMs
+			time_left =  (endtime - starttime);
+			time_left_in_days_till_Cap_with_New_VMs = Math.round(time_left / 1000 / 60 / 60 / 24);
+
+			//buffered capacity at current growth
 			endtime = bufferedcapacityPoint[0];
 			time_left =  (endtime - starttime);
 			time_left_in_days_till_BuffedCap = Math.round(time_left / 1000 / 60 / 60 / 24);
 
+			//buffered capacity with new VMs
+			endtime = bufferedcapacityPoint[0];
+			time_left =  (endtime - starttime);
+			time_left_in_days_till_BuffedCap_with_New_VMs = Math.round(time_left / 1000 / 60 / 60 / 24);
+
 
 			overview_string = "";
-			overview_string += "" + metricType + " " + queryType + " usage over " + timeFrame + " months<br>"
-			overview_string += "Days left till Capacity: " + time_left_in_days_till_Cap + "<br>";
-			overview_string += "Days left till Buffered Capacity: " + time_left_in_days_till_BuffedCap + "<br>";
-			overview_string += "Average Daily Growth: " + Delta.toFixed(2);
+			overview_string += '<div id="infoTitle">' + metricType + " " + queryType + " usage over " + timeFrame + " months</div><br>"
+
+			overview_string += '<div id="infoText">Average Daily Growth: ' + Delta.toFixed(2) + " " + unit + "</br></br>";
+			overview_string += '<div id="infoCol1"> Days left till Real Capacity at current Growth: ' + time_left_in_days_till_Cap + "<br>";
+			overview_string += "Days left till Buffered Capacity current Growth: " + time_left_in_days_till_BuffedCap + "<br></div>";
+
+			if (VmsAdjustment > 0)
+			{
+		
+				overview_string += '<div id="infoCol2"> Days left till Real Capacity with New VMs: ' + time_left_in_days_till_Cap_with_New_VMs + "<br>";
+				overview_string += "Days left till Buffered Capacity with New VMs: " + time_left_in_days_till_BuffedCap_with_New_VMs + "<br></div>";
+			}
+			overview_string += "</div>";
+	
 			$("#countDownTillDoomsDay").html(overview_string);
 		}
 
-		function justAddTitletoDoomsday()
+		function justAddTitletoDoomsday(Delta, unit)
 		{
 			$("#countDownTillDoomsDay").html("");
 
-			overview_string = "Looking at " + metricType + " " + queryType + " usage over " + timeFrame + " months<br>"
+			overview_string = '<div id="infoTitle">' + metricType + " " + queryType + " usage over " + timeFrame + " months</div><br>";
+			overview_string +=  '<div id="infoText">Usage Trending Downwards at ' + Delta.toFixed(2) + " " + unit + "</div>";
 			$("#countDownTillDoomsDay").html(overview_string);
 
 		}
