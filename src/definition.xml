@@ -32,11 +32,14 @@
 		<title>Capacity Gadget</title>
 		<link href="__UPTIME_GADGET_BASE__/uptimeCapacity.css?v=<%= pkg.gadget_version %>" type="text/css" rel="stylesheet" />
 
-		#includeResources(jquery,highcharts)
+		#includeResources(jquery)
 		
 		<script type="text/javascript" src="__UPTIME_GADGET_BASE__/apiQueries.js?v=<%= pkg.gadget_version %>"></script>
+		<script type="text/javascript" src="__UPTIME_GADGET_BASE__/highcharts.js?v=<%= pkg.gadget_version %>"></script>
+		<script type="text/javascript" src="__UPTIME_GADGET_BASE__/exporting.js?v=<%= pkg.gadget_version %>"></script>
 		<script type="text/javascript" src="__UPTIME_GADGET_BASE__/uptimeCapacityGadget.js?v=<%= pkg.gadget_version %>"></script>
 		<script type="text/javascript" id="ownScript" src="__UPTIME_GADGET_BASE__/uptimeCapacity.js?v=<%= pkg.gadget_version %>"></script>
+		<script type="text/javascript" id="ownScript" src="__UPTIME_GADGET_BASE__/export-csv.js?v=<%= pkg.gadget_version %>"></script>
 		
 	</head>
 

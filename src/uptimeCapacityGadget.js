@@ -59,9 +59,21 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                     title: {enabled: false,
                     text: ""}},
                 plotOptions: {spline: {marker: {enabled: false}},
-                    areaspline: {marker: {enabled: false}}},
+                areaspline: {marker: {enabled: false}}},
                 series: [],
-        });
+                navigation: {
+                    buttonOptions: {
+                        verticalAlign: 'bottom',
+                        y: -20
+                    }
+                },
+                exporting: {
+                    csv: {
+                        dateFormat: '%Y-%m-%d',
+                        itemDelimiter: ','
+                    }
+                }
+            });
 
         function requestData() {
 
@@ -228,7 +240,8 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
             chart.addSeries({
                 name: "Capacity",
                 zindex: 1,
-                data: CapacityLine
+                data: CapacityLine,
+                includeInCSVExport: false
             });
 
             //only draw the buffered Capacity Line if it's different then the real capacity
@@ -237,14 +250,16 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                 chart.addSeries({
                     name: "Buffered Capacity",
                     zindex: 1,
-                    data: BufferedCapacityLine
+                    data: BufferedCapacityLine,
+                    includeInCSVExport: false
                 });
             }
 
             chart.addSeries({
                 name: dataname + " - Usage",
                 zindex: 2,
-                data: LineOfBestFitForRealMetrics
+                data: LineOfBestFitForRealMetrics,
+                includeInCSVExport: false
             });
 
             chart.addSeries({
