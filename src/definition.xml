@@ -2,7 +2,7 @@
 <Module>
 	<ModulePrefs title="<%= pkg.title %>"
 		description="<%= pkg.description %>"
-		thumbnail="elementStatusThm.png">
+		thumbnail="capacity-what-if-gadget-icon.png">
 		<Require feature="dynamic-height" />
 	</ModulePrefs>
 	<gadget_version>
