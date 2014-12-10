@@ -38,7 +38,7 @@ $(function() {
 
     uptimeGadget.registerOnEditHandler(showEditPanel);
     uptimeGadget.registerOnLoadHandler(function(onLoadData) {
-        myChartDimensions = toMyChartDimensions(onLoadData.dimensions);
+        myChartDimensions = toMyChartDimensions(onLoadData.dimensions, true);
         if (onLoadData.hasPreloadedSettings()) {
             goodLoad(onLoadData.settings);
         } else {
@@ -59,8 +59,15 @@ $(function() {
         $("body").height($(window).height());
     }
 
-    function toMyChartDimensions(dimensions) {
-        return new UPTIME.pub.gadgets.Dimensions(Math.max(100, dimensions.width - 5), Math.max(100, dimensions.height - 5));
+    function toMyChartDimensions(dimensions, initialLoad) {
+        if (initialLoad)
+        {
+            return new UPTIME.pub.gadgets.Dimensions(Math.max(100, dimensions.width - 5), Math.max(100, dimensions.height - 5));
+        }
+        else
+        {
+            return new UPTIME.pub.gadgets.Dimensions(Math.max(100, dimensions.width - 10), Math.max(100, dimensions.height - 120));
+        }
     }
 
     function settingChanged() {
