@@ -33,6 +33,7 @@ $(function() {
     $("#closeSettings").click(function() {
         settingChanged();
         $("#widgetSettings").slideUp();
+        return false;
     });
 
     uptimeGadget.registerOnEditHandler(showEditPanel);
