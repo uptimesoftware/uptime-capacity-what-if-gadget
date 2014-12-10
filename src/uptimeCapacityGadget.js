@@ -174,16 +174,24 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                 {
                     yStart = EstimateLineWithNewVms[1][1];
 
-                    if (yStart < capacityCap)
+                    capacityWithNewVms = figureOutCapacity(capacityCap, last_Xvalue, yStart , xDelta, yDelta);
+                    bufferedcapacityWithNewVms = figureOutCapacity(capacityCapBuffered, last_Xvalue, yStart, xDelta, yDelta);
+
+                    if (yStart < capacityCapBuffered && capacityBuffer <= 100)
                     {
-                        capacityWithNewVms = figureOutCapacity(capacityCap, last_Xvalue, yStart , xDelta, yDelta);
+                        EstimateLineWithNewVms.push(bufferedcapacityWithNewVms);
                         EstimateLineWithNewVms.push(capacityWithNewVms);
                     }
 
-
-                    if (yStart < capacityCapBuffered && capacityBuffer != 100)
+                    if (yStart < capacityCap)
                     {
-                        bufferedcapacityWithNewVms = figureOutCapacity(capacityCapBuffered, last_Xvalue, yStart, xDelta, yDelta);
+                        
+                        EstimateLineWithNewVms.push(capacityWithNewVms);
+                    }
+
+                    if (yStart < capacityCapBuffered && capacityBuffer >= 100)
+                    {
+                        EstimateLineWithNewVms.push(capacityWithNewVms);
                         EstimateLineWithNewVms.push(bufferedcapacityWithNewVms);
                     }
 
