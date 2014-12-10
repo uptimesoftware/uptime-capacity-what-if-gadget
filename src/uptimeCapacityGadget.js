@@ -232,7 +232,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
             {
                 CapacityLine.push([lastPoint[0], capacityCap]);
                 BufferedCapacityLine.push([lastPoint[0], capacityCapBuffered]);
-                justAddTitletoDoomsday(yDelta, data['unit']);
+                justAddTitletoInfoPanel(yDelta, data['unit']);
             }
 
 
@@ -343,7 +343,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
             $("#infoPanel").html(overview_string);
         }
 
-        function justAddTitletoDoomsday(Delta, unit)
+        function justAddTitletoInfoPanel(Delta, unit)
         {
             $("#infoPanel").html("");
 
