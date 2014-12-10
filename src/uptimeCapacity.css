@@ -1,4 +1,4 @@
-#countDownTillDoomsDay {
+#infoPanel {
 	text-align: center;
 }
 
@@ -13,13 +13,11 @@
 	font-size: 150%;
 }
 
-#infoCol1 {
-	float: left;
+.col {
+	display: inline-block;
+	width:33%;
 }
 
-#infoCol2 {
-	float: right;
-}
 
 #widgetSettings {
 	font-size: 150%;

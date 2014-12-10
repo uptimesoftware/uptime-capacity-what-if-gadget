@@ -101,7 +101,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                     chart.hideLoading();
                 },
                 'error': function () {
-                    $("#countDownTillDoomsDay").html("No Data");
+                    $("#infoPanel").html("No Data");
                     chart.hideLoading();
                 }
             });
@@ -281,14 +281,14 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
 
         function fillInInfoPanel(startpoint, capPoint, bufcapPoint, withVmscapPoint, withVmsBufcapPoint, Delta, unit)
         {
-            $("#countDownTillDoomsDay").html("");
+            $("#infoPanel").html("");
             starttime = startpoint[0];
 
             overview_string = "";
             overview_string += '<div id="infoTitle">' + metricType + " " + queryType + " usage over " + timeFrame + " months</div><br>";
             overview_string += '<div class="infoText">Average Daily Growth: ' + Delta.toFixed(2) + " " + unit + "</br></br>";
-
-            overview_string += '<div id="infoCol1" class="infoText"> At Current Growth<hr>';
+            overview_string += '<div id="column_container">';
+            overview_string += '<div class="infoText col"> At Current Growth<hr>';
 
             //real capacity at current growth
             if (capPoint)
@@ -309,10 +309,14 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                 overview_string += "Days left untill " + capacityBuffer + "% capacity: " + time_left_in_days_till_BuffedCap + "<br>";
             }
 
+            overview_string += "</div>";
+
+
 
             if (newVMsAdjustment > 0)
             {
-	            overview_string += '</div><div id="infoCol2" class="infoText">With New Vms<hr>';
+                overview_string += '<div class="col"></div>';
+	            overview_string += '<div class="infoText col">With New Vms<hr>';
 	            //real capacity with new VMs
 	            if (withVmscapPoint)
 	            {
@@ -334,18 +338,18 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
 	            }
 
 
-	            overview_string += "</div>";
+	            overview_string += "</div></div>";
     		}
-            $("#countDownTillDoomsDay").html(overview_string);
+            $("#infoPanel").html(overview_string);
         }
 
         function justAddTitletoDoomsday(Delta, unit)
         {
-            $("#countDownTillDoomsDay").html("");
+            $("#infoPanel").html("");
 
             overview_string = '<div id="infoTitle">' + metricType + " " + queryType + " usage over " + timeFrame + " months</div><br>";
             overview_string +=  '<div id="infoText">Usage Trending Downwards at ' + Delta.toFixed(2) + " " + unit + "</div>";
-            $("#countDownTillDoomsDay").html(overview_string);
+            $("#infoPanel").html(overview_string);
 
         }
 

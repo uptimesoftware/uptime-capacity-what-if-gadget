@@ -104,7 +104,7 @@
 			</form>
 		</div>
 
-		<div id ="countDownTillDoomsDay"></div>
+		<div id ="infoPanel"></div></br>
 		<div id = "widgetChart"></div>
 		<div id="statusBar"></div>
 
