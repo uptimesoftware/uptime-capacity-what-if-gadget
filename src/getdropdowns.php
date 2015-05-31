@@ -87,7 +87,7 @@ elseif ($query_type == "getVMobjects")
     $getVMobjectsSql = 'select vmware_object_id, display_name
 
      from vmware_object
-     where mor_type in ("ClusterComputeResource","HostSystem" )  ';
+     where mor_type in ("ClusterComputeResource","HostSystem")  ';
 
     $results = $db->execQuery($getVMobjectsSql);
     foreach ($results as $row)
@@ -102,6 +102,123 @@ elseif ($query_type == "getVMobjects")
 
 
 	ksort($json);
+    echo json_encode($json);
+}
+
+elseif ($query_type == "getAgentSystems")
+{
+
+    // Create API object
+    $uptime_api = new uptimeApi($uptime_api_username, $uptime_api_password, $uptime_api_hostname, $uptime_api_port, $uptime_api_version, $uptime_api_ssl);
+    $elements = $uptime_api->getElements("type=Server&isMonitored=1");
+    foreach ($elements as $d) {
+        if (!preg_match("/Vcenter/", $d['typeSubtype'] ))
+        {
+            $has_ppg = False;
+            foreach($d['monitors'] as $monitor)
+            {
+                if($monitor['name'] == "Platform Performance Gatherer")
+                {
+                    $has_ppg = True;
+                    break;
+                }
+            }
+            if ($has_ppg)
+            {
+                $k = $d['name'];
+                $v = $d['id'];
+                $json[$k] = $v;
+            }
+        }
+    }
+    //sort alphabeticaly on name instead of their order on ID
+    ksort($json);  
+    echo json_encode($json);
+}
+
+elseif ($query_type == "getVMdatastores")
+{
+    $db = new uptimeDB;
+    $db->connectDB();
+
+    $getVMobjectsSql = 'select vmware_object_id, display_name
+
+     from vmware_object
+     where mor_type in ("Datastore" )  ';
+
+    $results = $db->execQuery($getVMobjectsSql);
+    foreach ($results as $row)
+    {
+        $id = $row['VMWARE_OBJECT_ID'];
+        $name = $row['DISPLAY_NAME'];
+        if (!preg_match("/deleted/", $name))
+        {
+            $json[$name] = $id;
+        }
+    }
+
+
+    ksort($json);
+    echo json_encode($json);
+}
+
+elseif ($query_type == "getXenServers") {
+    $db = new uptimeDB;
+    $db->connectDB();
+
+    $get_xenserver_sql = "SELECT
+                                e.display_name, e.entity_id
+                            FROM
+                                erdc_base b, erdc_configuration c, erdc_instance i, entity e
+                            WHERE
+                                b.name = 'XenServer' AND
+                                b.erdc_base_id = c.erdc_base_id AND
+                                c.id = i.configuration_id AND
+                                i.entity_id = e.entity_id";
+
+    $xenservers = $db->execQuery($get_xenserver_sql);
+    foreach ($xenservers as $row) {
+       $id = $row['ENTITY_ID'];
+       $name = $row['DISPLAY_NAME'];
+       $json[$name] = $id;
+
+    }
+
+    ksort($json);
+    echo json_encode($json);
+}
+
+elseif ( $query_type == 'getXenServerDatastores')
+{
+    $db = new uptimeDB;
+    $db->connectDB();
+
+    $get_xenserver_datastores_sql = "SELECT
+                e.display_name as NAME,
+                e.entity_id as ID,
+                ro.object_name as OBJ_NAME
+        FROM 
+                erdc_base b, erdc_configuration c, erdc_instance i, entity e, ranged_object ro
+        WHERE
+                b.name = 'XenServer' AND
+                b.erdc_base_id = c.erdc_base_id AND
+                c.id = i.configuration_id AND
+                i.erdc_instance_id = ro.instance_id AND
+                i.entity_id = e.entity_id
+        GROUP BY
+                e.entity_id,
+                ro.object_name";
+
+
+    $datastore_results = $db->execQuery($get_xenserver_datastores_sql);
+
+    foreach ($datastore_results as $row) {
+        $id = $row['ID'] . "-" . $row['OBJ_NAME'];
+        $name = $row['NAME'] . " - " . $row['OBJ_NAME'];
+        $json[$name] = $id;
+    }
+
+    ksort($json);
     echo json_encode($json);
 }
 

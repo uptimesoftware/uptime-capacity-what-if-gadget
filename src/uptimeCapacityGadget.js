@@ -39,6 +39,7 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
             capacityBuffer = options.capacityBuffer;
             getMetricsPath = options.getMetricsPath;
             newVMsAdjustment = options.newVMsAdjustment;
+	    baseGadgetPath = options.baseGadgetPath;
         }
 
         var dataLabelsEnabled = false;
@@ -75,11 +76,12 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                 }
             });
 
-        function requestData() {
+/*        function requestData() {
 
             var firstPoint = null;
             var lastPoint = null;
-            var my_url = getMetricsPath + '&query_type=' + queryType + '&metricType='  + metricType + "&element=" + elementId + "&time_frame=" + timeFrame;
+
+           var my_url = getMetricsPath + '&query_type=' + queryType + '&metricType='  + metricType + "&element=" + elementId + "&time_frame=" + timeFrame;
             $.ajax({
                 'async': true,
                 'global': false,
@@ -105,7 +107,62 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                     chart.hideLoading();
                 }
             });
-        }
+        }           */        
+
+
+	
+function requestData() {
+
+			var firstPoint = null;
+			var lastPoint = null;
+
+            //find the beginning part of the queryType
+            queryType_split = queryType.split("-");
+
+            var my_url = baseGadgetPath;
+            if ( queryType_split[0] == 'osperf')
+            {
+			    my_url = my_url + 'getmetrics.php' + '?uptime_offset=' + 14400 + '&query_type=' + queryType + '&metricType='  + metricType + "&element=" + elementId + "&time_frame=" + timeFrame;
+		    }
+            else if ( queryType_split[0] == 'vmware')
+            {
+                my_url = my_url + 'getvmwaremetrics.php' + '?uptime_offset=' + 14400 + '&query_type=' + queryType + '&metricType='  + metricType + "&element=" + elementId + "&time_frame=" + timeFrame;
+            }
+            else if ( queryType_split[0] == 'xenserver')
+            {
+                my_url = my_url + 'getxenmetrics.php' + '?uptime_offset=' + 14400 + '&query_type=' + queryType + '&metricType='  + metricType + "&element=" + elementId + "&time_frame=" + timeFrame;
+            }
+            $.ajax({
+		        'async': true,
+		        'global': false,
+		        'url': my_url,
+		        'dataType': "json",
+		        'success': function (data) {
+
+		        	$.each(data, function(index, value) {
+		            	chart.addSeries({
+		            		name: value['name'],
+		            		data: value['series']
+						});
+
+						addCapacityLines(value);
+					});
+
+		        	clearStatusBar();
+					dataLabelsEnabled = true;
+					chart.hideLoading();
+		        },
+		        'error': function () {
+		        	$("#infoPanel").html("No Data");    /*no data message*/
+		        	chart.hideLoading();
+		        }
+	    	});	
+		}
+
+
+
+
+
 
         function addCapacityLines(data) {
             //draw the various capacity and estimated usage lines
