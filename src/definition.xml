@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Module>
-	<ModulePrefs title="<%= pkg.title %>"
-		description="<%= pkg.description %>"
+	<ModulePrefs title="Capacity What If Gadget"
+		description="uptime Capacity WhatIf Gadget"
 		thumbnail="capacity-what-if-gadget-icon.png">
 		<Require feature="dynamic-height" />
 	</ModulePrefs>
 	<gadget_version>
-		<%= pkg.gadget_version %>
+		0.4
 	</gadget_version>
 	<grid_info>
 		<supported_versions>
-			7.3, 7.4,7.5
+			7.3, 7.4, 7.5
 		</supported_versions>
 		<supported_platforms>
 			windows,linux
@@ -30,16 +30,16 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 		<title>Capacity Gadget</title>
-		<link href="__UPTIME_GADGET_BASE__/uptimeCapacity.css?v=<%= pkg.gadget_version %>" type="text/css" rel="stylesheet" />
+		<link href="__UPTIME_GADGET_BASE__/uptimeCapacity.css?v=0.4" type="text/css" rel="stylesheet" />
 
 		#includeResources(jquery)
 		
-		<script type="text/javascript" src="__UPTIME_GADGET_BASE__/apiQueries.js?v=<%= pkg.gadget_version %>"></script>
-		<script type="text/javascript" src="__UPTIME_GADGET_BASE__/highcharts.js?v=<%= pkg.gadget_version %>"></script>
-		<script type="text/javascript" src="__UPTIME_GADGET_BASE__/exporting.js?v=<%= pkg.gadget_version %>"></script>
-		<script type="text/javascript" src="__UPTIME_GADGET_BASE__/uptimeCapacityGadget.js?v=<%= pkg.gadget_version %>"></script>
-		<script type="text/javascript" id="ownScript" src="__UPTIME_GADGET_BASE__/uptimeCapacity.js?v=<%= pkg.gadget_version %>"></script>
-		<script type="text/javascript" id="ownScript" src="__UPTIME_GADGET_BASE__/export-csv.js?v=<%= pkg.gadget_version %>"></script>
+		<script type="text/javascript" src="__UPTIME_GADGET_BASE__/apiQueries.js?v=0.4"></script>
+		<script type="text/javascript" src="__UPTIME_GADGET_BASE__/highcharts.js?v=0.4"></script>
+		<script type="text/javascript" src="__UPTIME_GADGET_BASE__/exporting.js?v=0.4"></script>
+		<script type="text/javascript" src="__UPTIME_GADGET_BASE__/uptimeCapacityGadget.js?v=0.4"></script>
+		<script type="text/javascript" id="ownScript" src="__UPTIME_GADGET_BASE__/uptimeCapacity.js?v=0.4"></script>
+		<script type="text/javascript" id="ownScript" src="__UPTIME_GADGET_BASE__/export-csv.js?v=0.4"></script>
 		
 	</head>
 
