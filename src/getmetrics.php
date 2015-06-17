@@ -84,7 +84,6 @@ WHERE
 	s.uptimehost_id = e.entity_id AND
 	e.entity_id = c.entity_id AND
 	s.sample_time > date_sub(now(),interval  ". $time_frame . " month) AND
-	e.entity_type_id = 1 AND
 	e.entity_id = $vmware_object_id
 GROUP BY 
 	e.entity_id,
@@ -191,7 +190,6 @@ WHERE
 	e.entity_id = c.entity_id AND
 	c.entity_configuration_id = u.entity_configuration_id AND
 	s.sample_time > date_sub(now(),interval  ". $time_frame . " month) AND
-	e.entity_type_id = 1 AND
 	e.entity_id = $vmware_object_id
 
 GROUP BY 
@@ -294,7 +292,6 @@ WHERE
 	s.id = a.sample_id AND 
 	s.uptimehost_id = e.entity_id AND
 	s.sample_time > date_sub(now(),interval ". $time_frame . " month) AND
-	e.entity_type_id = 1 AND
 	e.entity_id = $vmware_object_id
 GROUP BY 
 	sample_id";
