@@ -361,7 +361,7 @@ function requestData() {
                 endtime = capPoint[0];
                 time_left =  (endtime - starttime);
                 time_left_in_days_till_Cap = Math.round(time_left / 1000 / 60 / 60 / 24);
-                overview_string += 'Days left untill capacity: ' + time_left_in_days_till_Cap + "<br>";
+                overview_string += 'Days left until capacity: ' + time_left_in_days_till_Cap + "<br>";
 
             }
 
@@ -371,7 +371,7 @@ function requestData() {
                 endtime = bufcapPoint[0];
                 time_left =  (endtime - starttime);
                 time_left_in_days_till_BuffedCap = Math.round(time_left / 1000 / 60 / 60 / 24);
-                overview_string += "Days left untill " + capacityBuffer + "% capacity: " + time_left_in_days_till_BuffedCap + "<br>";
+                overview_string += "Days left until " + capacityBuffer + "% capacity: " + time_left_in_days_till_BuffedCap + "<br>";
             }
 
             overview_string += "</div>";
@@ -388,7 +388,7 @@ function requestData() {
 	                endtime = withVmscapPoint[0];
 	                time_left =  (endtime - starttime);
 	                time_left_in_days_till_Cap_with_New_VMs = Math.round(time_left / 1000 / 60 / 60 / 24);
-	                overview_string += 'Days left untill capacity: ' + time_left_in_days_till_Cap_with_New_VMs + "<br>";
+	                overview_string += 'Days left until capacity: ' + time_left_in_days_till_Cap_with_New_VMs + "<br>";
 
 	            }
 	                
@@ -399,7 +399,7 @@ function requestData() {
 	                endtime = withVmsBufcapPoint[0];
 	                time_left =  (endtime - starttime);
 	                time_left_in_days_till_BuffedCap_with_New_VMs = Math.round(time_left / 1000 / 60 / 60 / 24);
-	                overview_string += "Days left untill " + capacityBuffer + "% capacity: " + time_left_in_days_till_BuffedCap_with_New_VMs + "<br>";
+	                overview_string += "Days left until " + capacityBuffer + "% capacity: " + time_left_in_days_till_BuffedCap_with_New_VMs + "<br>";
 	            }
 
 

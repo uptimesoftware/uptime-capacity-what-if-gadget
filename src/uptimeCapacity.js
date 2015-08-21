@@ -1,9 +1,9 @@
 $(function() {
 
-	var currentURL = $("script#ownScript").attr("src");
+    var currentURL = $("script#ownScript").attr("src");
     var getMetricsPath = currentURL.substr(0,$("script#ownScript").attr("src").lastIndexOf("/")+1) + 'getmetrics.php';
     var getDropDownsPath = currentURL.substr(0,$("script#ownScript").attr("src").lastIndexOf("/")+1) + 'getdropdowns.php';
-	var baseGadgetPath = currentURL.substr(0,$("script#ownScript").attr("src").lastIndexOf("/")+1);
+    var baseGadgetPath = currentURL.substr(0,$("script#ownScript").attr("src").lastIndexOf("/")+1);
     var newvmstring = '<div class="vm">CPU:<input type="text" id="newCpu" class="what-if-setting Cpu" name="CpuUsage" value="0" size="4">GHz - Mem:<input type="text" id="newMem" class="what-if-setting Mem" name="MemUsage" value="0" size="4">GB - X<input type="text" id="vmCount" class="what-if-setting Count" name="vmCount" value="1" size="4"><input type="button" class="remove-vm-button" value="-"></div>';
 
     var date = new Date();
