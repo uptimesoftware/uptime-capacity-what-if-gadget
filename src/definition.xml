@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Module>
-	<ModulePrefs title="Capacity What If Gadget"
-		description="uptime Capacity WhatIf Gadget"
+	<ModulePrefs title="Capacity Planning What-If Gadget"
+		description="uptime Capacity Planning What-If Gadget"
 		thumbnail="capacity-what-if-gadget-icon.png">
 		<Require feature="dynamic-height" />
 	</ModulePrefs>
@@ -10,7 +10,7 @@
 	</gadget_version>
 	<grid_info>
 		<supported_versions>
-			7.4, 7.5
+			7.4,7.5
 		</supported_versions>
 		<supported_platforms>
 			windows,linux

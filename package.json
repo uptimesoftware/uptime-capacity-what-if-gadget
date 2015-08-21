@@ -1,12 +1,12 @@
 {
   "name": "uptime.CapacityWhatIfGadget",
-  "title": "Capacity What If Gadget",
-  "version": "1.0.0",
-  "description": "uptime Capacity WhatIf Gadget",
+  "title": "Capacity Planning What-If Gadget",
+  "version": "1.0",
+  "description": "uptime Capacity Planning What-If Gadget",
   "main": "src/uptimeCapacity.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dan-uptimesoftware/uptime-what-if-capacity.git"
+    "url": "https://github.com/uptimesoftware/uptime-capacity-what-if-gadget.git"
   },
   "dependencies": {
     "uptime-gadget-tasks": "git://github.com/uptimesoftware/uptime-gadget-tasks.git"
