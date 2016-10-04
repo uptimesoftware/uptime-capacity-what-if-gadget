@@ -102,6 +102,17 @@ $(function() {
 				populateIdSelector('getVMobjects');
 			}
 		}
+		else if (queryType_split[0] == 'hyperv')
+		{
+			if (queryType_split[1] == 'Datastore')
+			{
+				populateIdSelector('gethypervVMdatastores');
+			}
+			else
+			{
+				populateIdSelector('gethypervVMobjects');
+			}
+		}
 		else if (queryType_split[0] == 'xenserver')
 		{
 			if (queryType_split[1] == 'DiskUsed')

@@ -104,7 +104,31 @@ elseif ($query_type == "getVMobjects")
 	ksort($json);
     echo json_encode($json);
 }
+elseif ($query_type == "gethypervVMobjects")
+{
+    $db = new uptimeDB;
+    $db->connectDB();
 
+    $getVMobjectsSql = 'select hyperv_object_id, display_name
+
+     from hyperv_object
+     where mor_type in ("HostSystem")  ';
+
+    $results = $db->execQuery($getVMobjectsSql);
+    foreach ($results as $row)
+    {
+        $id = $row['HYPERV_OBJECT_ID'];
+        $name = $row['DISPLAY_NAME'];
+        if (!preg_match("/deleted/", $name))
+        {
+            $json[$name] = $id;
+        }
+    }
+
+
+	ksort($json);
+    echo json_encode($json);
+}
 elseif ($query_type == "getAgentSystems")
 {
 
@@ -161,7 +185,31 @@ elseif ($query_type == "getVMdatastores")
     ksort($json);
     echo json_encode($json);
 }
+elseif ($query_type == "gethypervVMdatastores")
+{
+    $db = new uptimeDB;
+    $db->connectDB();
 
+    $getVMobjectsSql = 'select hyperv_object_id, display_name
+
+     from hyperv_object
+     where mor_type in ("Datastore" )  ';
+
+    $results = $db->execQuery($getVMobjectsSql);
+    foreach ($results as $row)
+    {
+        $id = $row['HYPERV_OBJECT_ID'];
+        $name = $row['DISPLAY_NAME'];
+        if (!preg_match("/deleted/", $name))
+        {
+            $json[$name] = $id;
+        }
+    }
+
+
+    ksort($json);
+    echo json_encode($json);
+}
 elseif ($query_type == "getXenServers") {
     $db = new uptimeDB;
     $db->connectDB();

@@ -128,6 +128,10 @@ function requestData() {
             {
                 my_url = my_url + 'getvmwaremetrics.php' + '?uptime_offset=' + 14400 + '&query_type=' + queryType + '&metricType='  + metricType + "&element=" + elementId + "&time_frame=" + timeFrame;
             }
+			else if ( queryType_split[0] == 'hyperv')
+            {
+                my_url = my_url + 'gethypervmetrics.php' + '?uptime_offset=' + 14400 + '&query_type=' + queryType + '&metricType='  + metricType + "&element=" + elementId + "&time_frame=" + timeFrame;
+            }
             else if ( queryType_split[0] == 'xenserver')
             {
                 my_url = my_url + 'getxenmetrics.php' + '?uptime_offset=' + 14400 + '&query_type=' + queryType + '&metricType='  + metricType + "&element=" + elementId + "&time_frame=" + timeFrame;

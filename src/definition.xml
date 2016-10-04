@@ -61,6 +61,9 @@
 						<option value="vmware-Mem">VMware Memory</option>
 						<option value="vmware-Cpu">VMware Cpu</option>
 						<option value="vmware-Datastore">VMware Datastore</option>
+						<option value="hyperv-Mem">Hyper-V Memory</option>
+						<option value="hyperv-Cpu">Hyper-V Cpu</option>
+						<option value="hyperv-Datastore">Hyper-V Datastore</option>
 						<option value="xenserver-Mem">Xenserver Memory</option>
 						<option value="xenserver-DiskUsed">Xenserver Disk Used</option>
 
