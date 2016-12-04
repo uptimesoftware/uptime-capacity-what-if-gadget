@@ -84,10 +84,11 @@ elseif ($query_type == "getVMobjects")
     $db = new uptimeDB;
     $db->connectDB();
 
-    $getVMobjectsSql = 'select vmware_object_id, display_name
-
-     from vmware_object
-     where mor_type in ("ClusterComputeResource","HostSystem")  ';
+    $getVMobjectsSql = "
+        select vmware_object_id, display_name
+        from vmware_object
+        where mor_type in ('ClusterComputeResource','HostSystem');
+        ";
 
     $results = $db->execQuery($getVMobjectsSql);
     foreach ($results as $row)
@@ -109,10 +110,10 @@ elseif ($query_type == "gethypervVMobjects")
     $db = new uptimeDB;
     $db->connectDB();
 
-    $getVMobjectsSql = 'select hyperv_object_id, display_name
+    $getVMobjectsSql = "select hyperv_object_id, display_name
 
      from hyperv_object
-     where mor_type in ("HostSystem")  ';
+     where mor_type in ('HostSystem')  ";
 
     $results = $db->execQuery($getVMobjectsSql);
     foreach ($results as $row)
@@ -136,7 +137,7 @@ elseif ($query_type == "getAgentSystems")
     $uptime_api = new uptimeApi($uptime_api_username, $uptime_api_password, $uptime_api_hostname, $uptime_api_port, $uptime_api_version, $uptime_api_ssl);
     $elements = $uptime_api->getElements("type=Server&isMonitored=1");
     foreach ($elements as $d) {
-        if (!preg_match("/Vcenter/", $d['typeSubtype'] ))
+        if (!preg_match("/Vcenter/", $d['typeSubtype'] ) && !preg_match("/HyperVHost/", $d['typeSubtype']))
         {
             $has_ppg = False;
             foreach($d['monitors'] as $monitor)
@@ -165,10 +166,14 @@ elseif ($query_type == "getVMdatastores")
     $db = new uptimeDB;
     $db->connectDB();
 
-    $getVMobjectsSql = 'select vmware_object_id, display_name
-
-     from vmware_object
-     where mor_type in ("Datastore" )  ';
+    $getVMobjectsSql = "
+        SELECT
+            vmware_object_id, display_name
+        FROM
+            vmware_object
+        WHERE
+            mor_type = 'Datastore'
+        ";
 
     $results = $db->execQuery($getVMobjectsSql);
     foreach ($results as $row)
@@ -190,10 +195,10 @@ elseif ($query_type == "gethypervVMdatastores")
     $db = new uptimeDB;
     $db->connectDB();
 
-    $getVMobjectsSql = 'select hyperv_object_id, display_name
+    $getVMobjectsSql = "select hyperv_object_id, display_name
 
      from hyperv_object
-     where mor_type in ("Datastore" )  ';
+     where mor_type in ('Datastore' )  ";
 
     $results = $db->execQuery($getVMobjectsSql);
     foreach ($results as $row)
@@ -240,25 +245,53 @@ elseif ( $query_type == 'getXenServerDatastores')
 {
     $db = new uptimeDB;
     $db->connectDB();
-
-    $get_xenserver_datastores_sql = "SELECT
+    
+    $get_xenserver_datastores_sql = "
+        SET NOCOUNT ON;
+        SELECT
                 e.display_name as NAME,
                 e.entity_id as ID,
                 ro.object_name as OBJ_NAME
-        FROM 
-                erdc_base b, erdc_configuration c, erdc_instance i, entity e, ranged_object ro
-        WHERE
-                b.name = 'XenServer' AND
-                b.erdc_base_id = c.erdc_base_id AND
-                c.id = i.configuration_id AND
-                i.erdc_instance_id = ro.instance_id AND
-                i.entity_id = e.entity_id
+        FROM
+        erdc_base b
+        JOIN erdc_configuration c
+                ON (
+                        b.name = 'XenServer' AND
+                        b.erdc_base_id = c.erdc_base_id 
+                        )
+        JOIN erdc_instance i
+                ON c.id = i.configuration_id
+        JOIN entity e
+                ON i.entity_id = e.entity_id
+        JOIN ranged_object ro
+                ON i.erdc_instance_id = ro.instance_id
         GROUP BY
-                e.entity_id,
-                ro.object_name";
+        e.entity_id,
+        e.display_name,
+        ro.object_name
+        ";
+    
+    $get_xenserver_datastores_mysql = "
+        SELECT
+            e.display_name as NAME, e.entity_id as ID, ro.object_name as OBJ_NAME
+        FROM
+            erdc_base b, erdc_configuration c, erdc_instance i, entity e, ranged_object ro
+        WHERE
+            b.name = 'XenServer' AND
+            b.erdc_base_id = c.erdc_base_id AND
+            c.id = i.configuration_id AND
+            i.erdc_instance_id = ro.instance_id AND
+            i.entity_id = e.entity_id
+        GROUP BY
+            e.entity_id,
+            ro.object_name
+        ";
 
-
-    $datastore_results = $db->execQuery($get_xenserver_datastores_sql);
+	if ($db->dbType == 'mysql'){
+		$datastore_results = $db->execQuery($get_xenserver_datastores_mysql);
+	} else{
+		$datastore_results = $db->execQuery($get_xenserver_datastores_sql);
+	}
 
     foreach ($datastore_results as $row) {
         $id = $row['ID'] . "-" . $row['OBJ_NAME'];

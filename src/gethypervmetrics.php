@@ -56,15 +56,79 @@ else
 }
 
 
-if ($query_type == "hyperv-Mem")
+if ($query_type == "Hyper-V-Mem")
 {
 
 	$min_mem_usage_array = array();
 	$max_mem_usage_array = array();
 	$avg_mem_usage_array = array();
+	
+	$sql = "
+        SET nocount ON;
+        DECLARE @hyperv_object_id int;
+        DECLARE @time_frame int;
+        DECLARE @time_from date;
+
+        SET @hyperv_object_id = $hyperv_object_id;
+        SET @time_frame = $time_frame;
+        SET @time_from = DATEADD(month, -@time_frame, GETDATE())
+
+        SELECT
+            s.hyperv_object_id,
+            o.hyperv_name as NAME,
+            MIN(cast(s.sample_time as date)) as SAMPLE_TIME,
+            min(a.memory_usage) as MIN_MEM_USAGE,
+            max(a.memory_usage) as MAX_MEM_USAGE,
+            avg(a.memory_usage) as AVG_MEM_USAGE,
+            min(a.memory_total) as TOTAL_CAPACITY
+	FROM
+            hyperv_perf_aggregate a
+	JOIN hyperv_perf_sample s
+            ON (
+                s.sample_id = a.sample_id AND
+                s.sample_time > @time_from
+            )
+	JOIN hyperv_object o
+            ON (
+                s.hyperv_object_id = o.hyperv_object_id AND
+                s.hyperv_object_id = @hyperv_object_id
+            )
+        GROUP BY
+            s.hyperv_object_id,
+            o.hyperv_name,
+            year(s.sample_time),
+            month(s.sample_time),
+            day(s.sample_time)";
+			
+	
+
+	$oracle = "SELECT 
+		s.hyperv_object_id, 
+		o.hyperv_name as NAME,
+		min(TRUNC(s.sample_time)) as SAMPLE_TIME,
+		min(a.memory_usage) as MIN_MEM_USAGE,
+		max(a.memory_usage) as MAX_MEM_USAGE,
+		avg(a.memory_usage) as AVG_MEM_USAGE,
+		min(a.memory_total) as TOTAL_CAPACITY,
+		EXTRACT(DAY FROM s.sample_time),
+		EXTRACT(MONTH FROM s.sample_time), 
+		EXTRACT(YEAR FROM s.sample_time)
+	FROM 
+		hyperv_perf_aggregate a, hyperv_perf_sample s, hyperv_object o
+	WHERE 
+		s.sample_id = a.sample_id AND 
+		s.hyperv_object_id = o.hyperv_object_id AND
+		s.sample_time > ADD_MONTHS(SYSDATE, -".$time_frame.") AND
+		s.hyperv_object_id = $hyperv_object_id
+	GROUP BY 
+		s.hyperv_object_id,
+		o.hyperv_name,
+		EXTRACT(YEAR FROM s.sample_time),
+		EXTRACT(MONTH FROM s.sample_time), 
+		EXTRACT(DAY FROM s.sample_time)";
 
 
-	$sql = "SELECT 
+	$mysql = "SELECT 
 		s.hyperv_object_id, 
 		o.hyperv_name as NAME,
 		date(s.sample_time) as SAMPLE_TIME,
@@ -88,7 +152,13 @@ if ($query_type == "hyperv-Mem")
 		month(s.sample_time), 
 		day(s.sample_time)";
 
-	$hostMemResults = $db->execQuery($sql);
+	if ($db->dbType == 'oracle'){
+		$hostMemResults = $db->execQuery($oracle);
+	} else if ($db->dbType == 'mssql'){
+		$hostMemResults = $db->execQuery($sql);
+	} else{
+		$hostMemResults = $db->execQuery($mysql);
+	}
 
 	$name = $hostMemResults[0]['NAME'];
 	$memScale = 1e-6;
@@ -155,16 +225,79 @@ if ($query_type == "hyperv-Mem")
 		echo "No Data";
 	}
 }
-elseif ($query_type == "hyperv-Cpu")
+elseif ($query_type == "Hyper-V-Cpu")
 {
 
 	$min_cpu_usage_array = array();
 	$max_cpu_usage_array = array();
 	$avg_cpu_usage_array = array();
+	
+	$sql = "
+        SET nocount ON;
+        DECLARE @hyperv_object_id int;
+        DECLARE @time_frame int;
+        DECLARE @time_from date;
+
+        SET @hyperv_object_id = $hyperv_object_id;
+        SET @time_frame = $time_frame;
+        SET @time_from = DATEADD(month, -@time_frame, GETDATE())
+
+        SELECT
+            s.hyperv_object_id,
+            o.hyperv_name as NAME,
+            min(cast(s.sample_time as date)) as SAMPLE_TIME,
+            min(a.cpu_usage) as MIN_CPU_USAGE,
+            max(a.cpu_usage) as MAX_CPU_USAGE,
+            avg(a.cpu_usage) as AVG_CPU_USAGE,
+            min(a.cpu_total) as TOTAL_CAPACITY
+	FROM
+            hyperv_perf_aggregate a
+	JOIN hyperv_perf_sample s
+            ON (
+		s.sample_id = a.sample_id AND
+		s.sample_time > @time_from
+            )
+	JOIN hyperv_object o
+            ON (
+		s.hyperv_object_id = o.hyperv_object_id AND
+		s.hyperv_object_id = @hyperv_object_id
+            )
+        GROUP BY
+            s.hyperv_object_id,
+            o.hyperv_name,
+            year(s.sample_time),
+            month(s.sample_time),
+            day(s.sample_time)";
+			
+			
+	$oracle = "SELECT 
+		s.hyperv_object_id, 
+		o.hyperv_name as NAME,
+		min(TRUNC(s.sample_time)) as SAMPLE_TIME,
+		min(a.cpu_usage) as MIN_CPU_USAGE,
+		max(a.cpu_usage) as MAX_CPU_USAGE,
+		avg(a.cpu_usage) as AVG_CPU_USAGE,
+		min(a.cpu_total) as TOTAL_CAPACITY,
+		EXTRACT(DAY FROM s.sample_time),
+		EXTRACT(MONTH FROM s.sample_time), 
+		EXTRACT(YEAR FROM s.sample_time)
+	FROM 
+		hyperv_perf_aggregate a, hyperv_perf_sample s, hyperv_object o
+	WHERE 
+		s.sample_id = a.sample_id AND 
+		s.hyperv_object_id = o.hyperv_object_id AND
+		s.sample_time > ADD_MONTHS(SYSDATE, -".$time_frame.") AND
+		s.hyperv_object_id = $hyperv_object_id
+
+	GROUP BY 
+		s.hyperv_object_id,
+		o.hyperv_name,
+		EXTRACT(YEAR FROM s.sample_time),
+		EXTRACT(MONTH FROM s.sample_time), 
+		EXTRACT(DAY FROM s.sample_time)";		
 
 
-
-	$sql = "SELECT 
+	$mysql = "SELECT 
 		s.hyperv_object_id, 
 		o.hyperv_name as NAME,
 		date(s.sample_time) as SAMPLE_TIME,
@@ -188,8 +321,14 @@ elseif ($query_type == "hyperv-Cpu")
 		year(s.sample_time),
 		month(s.sample_time), 
 		day(s.sample_time)";
-
-	$hostCpuResults = $db->execQuery($sql);
+	
+	if ($db->dbType == 'oracle'){
+		$hostCpuResults = $db->execQuery($oracle);
+	} else if ($db->dbType == 'mssql'){
+		$hostCpuResults = $db->execQuery($sql);
+	} else{
+		$hostCpuResults = $db->execQuery($mysql);
+	}
 
 	$name = $hostCpuResults[0]['NAME'];
 	$cpuScale = 1000;
@@ -260,7 +399,7 @@ elseif ($query_type == "hyperv-Cpu")
 
 
 }
-elseif ( $query_type == "hyperv-Datastore")
+elseif ( $query_type == "Hyper-V-Datastore")
 {
 
 	$min_datastore_usage_array = array();
@@ -269,10 +408,83 @@ elseif ( $query_type == "hyperv-Datastore")
 	$min_datastore_prov_array = array();
 	$max_datastore_prov_array = array();
 	$avg_datastore_prov_array = array();
+	
+	$datastoreSql = "
+        SET nocount ON;
+        DECLARE @hyperv_object_id int;
+        DECLARE @time_frame int;
+        DECLARE @time_from date;
 
+        SET @hyperv_object_id = $hyperv_object_id;
+        SET @time_frame = $time_frame;
+        SET @time_from = DATEADD(month, -@time_frame, GETDATE())
 
+        SELECT
+            s.hyperv_object_id,
+            o.hyperv_name as NAME,
+            min(cast(s.sample_time as date)) as SAMPLE_TIME,
+            min(u.usage_total) as MIN_USAGE,
+            max(u.usage_total) as MAX_USAGE,
+            avg(u.usage_total) as AVG_USAGE,
+            min(u.provisioned) as MIN_PROV,
+            max(u.provisioned) as MAX_PROV,
+            avg(u.provisioned) as AVG_PROV,
+			(SELECT capacity FROM hyperv_perf_datastore_usage hpdu
+				INNER JOIN hyperv_latest_datastore_sample hlds 
+				ON hlds.sample_id = hpdu.sample_id and hlds.hyperv_object_id = @hyperv_object_id) AS CURR_CAPACITY,
+            min(u.capacity) as TOTAL_CAPACITY
+        FROM
+            hyperv_perf_datastore_usage u
+	JOIN hyperv_perf_sample s
+            ON (
+                s.sample_id = u.sample_id AND
+                s.sample_time > @time_from
+            )
+	JOIN hyperv_object o
+            ON (
+                s.hyperv_object_id = o.hyperv_object_id AND
+                s.hyperv_object_id = @hyperv_object_id
+            )
+        GROUP BY
+            s.hyperv_object_id,
+            o.hyperv_name,
+            year(s.sample_time),
+            month(s.sample_time),
+            day(s.sample_time)";
+			
+	$datastoreOracle = "SELECT 
+		s.hyperv_object_id, 
+		o.hyperv_name as NAME,
+		min(TRUNC(s.sample_time)) as SAMPLE_TIME,
+		min(u.usage_total) as MIN_USAGE,
+		max(u.usage_total) as MAX_USAGE,
+		avg(u.usage_total) as AVG_USAGE,
+		min(u.provisioned) as MIN_PROV,
+		max(u.provisioned) as MAX_PROV,
+		avg(u.provisioned) as AVG_PROV,
+		(SELECT capacity FROM hyperv_perf_datastore_usage hpdu
+		INNER JOIN hyperv_latest_datastore_sample hlds 
+		ON hlds.sample_id = hpdu.sample_id and hlds.hyperv_object_id = $hyperv_object_id) AS CURR_CAPACITY,
+		min(u.capacity) as TOTAL_CAPACITY,
+		EXTRACT(DAY FROM s.sample_time),
+		EXTRACT(MONTH FROM s.sample_time), 
+		EXTRACT(YEAR FROM s.sample_time)
+	FROM 
+		hyperv_perf_datastore_usage u, hyperv_perf_sample s, hyperv_object o
+	WHERE 
+		s.sample_id = u.sample_id AND 
+		s.hyperv_object_id = o.hyperv_object_id AND
+		s.sample_time > ADD_MONTHS(SYSDATE, -".$time_frame.") AND
+		s.hyperv_object_id = $hyperv_object_id
 
-	$datastoreSql = "SELECT 
+	GROUP BY 
+		s.hyperv_object_id,
+		o.hyperv_name,
+		EXTRACT(YEAR FROM s.sample_time),
+		EXTRACT(MONTH FROM s.sample_time), 
+		EXTRACT(DAY FROM s.sample_time)";		
+
+	$datastoremySql = "SELECT 
 	s.hyperv_object_id, 
 	o.hyperv_name as NAME,
 	date(s.sample_time) as SAMPLE_TIME,
@@ -282,6 +494,9 @@ elseif ( $query_type == "hyperv-Datastore")
 	min(u.provisioned) as MIN_PROV,
 	max(u.provisioned) as MAX_PROV,
 	avg(u.provisioned) as AVG_PROV,
+	(SELECT capacity FROM hyperv_perf_datastore_usage hpdu
+	INNER JOIN uptime.hyperv_latest_datastore_sample hlds 
+	ON hlds.sample_id = hpdu.sample_id and hlds.hyperv_object_id = $hyperv_object_id) AS CURR_CAPACITY,
 	u.capacity as TOTAL_CAPACITY,
 	day(s.sample_time), 
 	month(s.sample_time), 
@@ -301,10 +516,16 @@ GROUP BY
 	day(s.sample_time)";
 
 
-	$datastoreResults = $db->execQuery($datastoreSql);
+	if ($db->dbType == 'oracle'){
+		$datastoreResults = $db->execQuery($datastoreOracle);
+	} else if ($db->dbType == 'mssql'){
+		$datastoreResults = $db->execQuery($datastoreSql);
+	} else{
+		$datastoreResults = $db->execQuery($datastoremySql);
+	}
 
 	$name = $datastoreResults[0]['NAME'];
-	$capacity = floatval($datastoreResults[0]['TOTAL_CAPACITY']);
+	$capacity = floatval($datastoreResults[0]['CURR_CAPACITY']);
 
 	foreach ($datastoreResults as $index => $row) {
 		$sample_time = strtotime($row['SAMPLE_TIME'])-$offset;

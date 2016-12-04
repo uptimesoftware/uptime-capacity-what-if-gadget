@@ -102,9 +102,9 @@ $(function() {
 				populateIdSelector('getVMobjects');
 			}
 		}
-		else if (queryType_split[0] == 'hyperv')
+		else if (queryType_split[0] == 'Hyper')
 		{
-			if (queryType_split[1] == 'Datastore')
+			if (queryType_split[2] == 'Datastore')
 			{
 				populateIdSelector('gethypervVMdatastores');
 			}
@@ -128,6 +128,7 @@ $(function() {
 		{
 			populateIdSelector('getAgentSystems');
 		}
+		settingChanged();
 	}
 
 	function displayStatusBar(error, msg) {

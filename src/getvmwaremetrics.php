@@ -282,6 +282,9 @@ elseif ( $query_type == "vmware-Datastore")
 	min(u.provisioned) as MIN_PROV,
 	max(u.provisioned) as MAX_PROV,
 	avg(u.provisioned) as AVG_PROV,
+	(SELECT capacity FROM vmware_perf_datastore_usage vpdu
+	INNER JOIN uptime.vmware_latest_datastore_sample vlds 
+	ON vlds.sample_id = vpdu.sample_id and vlds.vmware_object_id = $vmware_object_id) AS CURR_CAPACITY,
 	u.capacity as TOTAL_CAPACITY,
 	day(s.sample_time), 
 	month(s.sample_time), 
@@ -304,7 +307,7 @@ GROUP BY
 	$datastoreResults = $db->execQuery($datastoreSql);
 
 	$name = $datastoreResults[0]['NAME'];
-	$capacity = floatval($datastoreResults[0]['TOTAL_CAPACITY']);
+	$capacity = floatval($datastoreResults[0]['CURR_CAPACITY']);
 
 	foreach ($datastoreResults as $index => $row) {
 		$sample_time = strtotime($row['SAMPLE_TIME'])-$offset;
