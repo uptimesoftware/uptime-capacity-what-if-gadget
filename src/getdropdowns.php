@@ -195,16 +195,16 @@ elseif ($query_type == "gethypervVMdatastores")
     $db = new uptimeDB;
     $db->connectDB();
 
-    $getVMobjectsSql = "select hyperv_object_id, display_name
-
-     from hyperv_object
-     where mor_type in ('Datastore' )  ";
+    $getVMobjectsSql = "SELECT ho1.hyperv_object_id, ho1.display_name, ho2.display_name as host
+						FROM hyperv_object ho1 
+						LEFT JOIN hyperv_object ho2 ON ho2.hyperv_object_id = ho1.hyperv_host_id
+						where ho1.mor_type in ('Datastore') ";
 
     $results = $db->execQuery($getVMobjectsSql);
     foreach ($results as $row)
     {
         $id = $row['HYPERV_OBJECT_ID'];
-        $name = $row['DISPLAY_NAME'];
+        $name = $row['DISPLAY_NAME']." (".$row['HOST'].")";
         if (!preg_match("/deleted/", $name))
         {
             $json[$name] = $id;
