@@ -100,8 +100,6 @@ if ($query_type == "Hyper-V-Mem")
             month(s.sample_time),
             day(s.sample_time)";
 			
-	
-
 	$oracle = "SELECT 
 		s.hyperv_object_id, 
 		o.hyperv_name as NAME,
@@ -125,8 +123,11 @@ if ($query_type == "Hyper-V-Mem")
 		o.hyperv_name,
 		EXTRACT(YEAR FROM s.sample_time),
 		EXTRACT(MONTH FROM s.sample_time), 
+		EXTRACT(DAY FROM s.sample_time)
+	ORDER BY
+		EXTRACT(YEAR FROM s.sample_time),
+		EXTRACT(MONTH FROM s.sample_time), 
 		EXTRACT(DAY FROM s.sample_time)";
-
 
 	$mysql = "SELECT 
 		s.hyperv_object_id, 
@@ -269,7 +270,6 @@ elseif ($query_type == "Hyper-V-Cpu")
             month(s.sample_time),
             day(s.sample_time)";
 			
-			
 	$oracle = "SELECT 
 		s.hyperv_object_id, 
 		o.hyperv_name as NAME,
@@ -294,9 +294,12 @@ elseif ($query_type == "Hyper-V-Cpu")
 		o.hyperv_name,
 		EXTRACT(YEAR FROM s.sample_time),
 		EXTRACT(MONTH FROM s.sample_time), 
-		EXTRACT(DAY FROM s.sample_time)";		
-
-
+		EXTRACT(DAY FROM s.sample_time)
+	ORDER BY
+		EXTRACT(YEAR FROM s.sample_time),
+		EXTRACT(MONTH FROM s.sample_time), 
+		EXTRACT(DAY FROM s.sample_time)";
+	
 	$mysql = "SELECT 
 		s.hyperv_object_id, 
 		o.hyperv_name as NAME,
@@ -401,7 +404,6 @@ elseif ($query_type == "Hyper-V-Cpu")
 }
 elseif ( $query_type == "Hyper-V-Datastore")
 {
-
 	$min_datastore_usage_array = array();
 	$max_datastore_usage_array = array();
 	$avg_datastore_usage_array = array();
@@ -476,10 +478,13 @@ elseif ( $query_type == "Hyper-V-Datastore")
 		s.hyperv_object_id = o.hyperv_object_id AND
 		s.sample_time > ADD_MONTHS(SYSDATE, -".$time_frame.") AND
 		s.hyperv_object_id = $hyperv_object_id
-
 	GROUP BY 
 		s.hyperv_object_id,
 		o.hyperv_name,
+		EXTRACT(YEAR FROM s.sample_time),
+		EXTRACT(MONTH FROM s.sample_time), 
+		EXTRACT(DAY FROM s.sample_time)
+	ORDER BY
 		EXTRACT(YEAR FROM s.sample_time),
 		EXTRACT(MONTH FROM s.sample_time), 
 		EXTRACT(DAY FROM s.sample_time)";		
@@ -609,10 +614,6 @@ GROUP BY
 
 }
 
-	
-
-
-    
 // Unsupported request
 else {
     echo "Error: Unsupported Request '$query_type'" . "</br>";
