@@ -6,7 +6,7 @@
 		<Require feature="dynamic-height" />
 	</ModulePrefs>
 	<gadget_version>
-		1.0
+		1.5
 	</gadget_version>
 	<grid_info>
 		<supported_versions>
