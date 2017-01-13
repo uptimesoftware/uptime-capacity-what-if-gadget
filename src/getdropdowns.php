@@ -18,15 +18,12 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . "/includes/classLoader.inc";
 
-
 session_start();
 
 $user_name =  $_SESSION['current_user']->getName();
 $user_pass = $_SESSION['current_user']->getPassword();
 
 session_write_close();
-
-
 
 header("Content-type: text/json");
 
@@ -302,12 +299,10 @@ elseif ( $query_type == 'getXenServerDatastores')
     ksort($json);
     echo json_encode($json);
 }
-
-
-    
+ 
 // Unsupported request
-else {
-    echo "Error: Unsupported Request '$query_type'" . "</br>";
-    }
-
+else { echo "Error: Unsupported Request '$query_type'" . "</br>"; }
+	
+// close sessions
+$db->closeDB();
 ?>

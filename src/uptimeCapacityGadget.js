@@ -49,8 +49,9 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                 type: 'line',
                 style: {fontFamily: 'Arial',
                     fontSize: '9px'},
-                spacingTop: 10,
-                spacingBottom: 10},
+                spacingTop: 50,
+                spacingBottom: 30,
+				spacingRight: 10},
                 title: {text: ""},
                 credits: {enabled: false},
                 xAxis: {type: 'datetime',
@@ -64,12 +65,13 @@ if (typeof UPTIME.UptimeCapacityGadget == "undefined") {
                 series: [],
                 navigation: {
                     buttonOptions: {
-                        verticalAlign: 'bottom',
-                        y: -20
+                        verticalAlign: 'top',
+                        y: -30
                     }
                 },
                 exporting: {
                     csv: {
+						title: 'test',
                         dateFormat: '%Y-%m-%d',
                         itemDelimiter: ','
                     }
@@ -355,10 +357,9 @@ function requestData() {
 
             overview_string = "";
             overview_string += '<div id="infoTitle">' + metricType + " " + queryType + " usage over " + timeFrame + " months</div><br>";
-            overview_string += '<div class="infoText">Average Daily Growth: ' + Delta.toFixed(2) + " " + unit + "</br></br>";
+            overview_string += '<div class="infoText">At Current Average Daily Growth: ' + Delta.toFixed(2) + " " + unit;
             overview_string += '<div id="column_container">';
-            overview_string += '<div class="infoText col"> At Current Growth<hr>';
-
+            
             //real capacity at current growth
             if (capPoint)
             {
@@ -375,7 +376,7 @@ function requestData() {
                 endtime = bufcapPoint[0];
                 time_left =  (endtime - starttime);
                 time_left_in_days_till_BuffedCap = Math.round(time_left / 1000 / 60 / 60 / 24);
-                overview_string += "Days left until " + capacityBuffer + "% capacity: " + time_left_in_days_till_BuffedCap + "<br>";
+                overview_string += "Days left until " + capacityBuffer + "% capacity: " + time_left_in_days_till_BuffedCap + "<br><br>";
             }
 
             overview_string += "</div>";

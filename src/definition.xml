@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Module>
-	<ModulePrefs title="Capacity Planning What-If Gadget"
+	<ModulePrefs
+		title="Capacity Planning What-If Gadget"
 		description="uptime Capacity Planning What-If Gadget"
 		thumbnail="capacity-what-if-gadget-icon.png">
 		<Require feature="dynamic-height" />
@@ -24,105 +25,95 @@
 	</grid_info>
 	<Content type="html">
 <![CDATA[ 
-
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 		<title>Capacity Gadget</title>
 		<link href="__UPTIME_GADGET_BASE__/uptimeCapacity.css?v=0.4" type="text/css" rel="stylesheet" />
-
-		#includeResources(jquery)
-		
+		#includeResources(jquery)		
 		<script type="text/javascript" src="__UPTIME_GADGET_BASE__/apiQueries.js?v=0.4"></script>
 		<script type="text/javascript" src="__UPTIME_GADGET_BASE__/highcharts.js?v=0.4"></script>
 		<script type="text/javascript" src="__UPTIME_GADGET_BASE__/exporting.js?v=0.4"></script>
 		<script type="text/javascript" src="__UPTIME_GADGET_BASE__/uptimeCapacityGadget.js?v=0.4"></script>
 		<script type="text/javascript" id="ownScript" src="__UPTIME_GADGET_BASE__/uptimeCapacity.js?v=0.4"></script>
-		<script type="text/javascript" id="ownScript" src="__UPTIME_GADGET_BASE__/export-csv.js?v=0.4"></script>
-		
+		<script type="text/javascript" id="ownScript" src="__UPTIME_GADGET_BASE__/export-csv.js?v=0.4"></script>		
 	</head>
-
-
-
 	<body>
-
 		<div id="widgetSettings">
-
 			<form id="widgetOptions">
-
-				<div id="availableQueries">
-					Query Type:
-					<select id="QueryTypeSelector" class="query-type-setting">
-						
-						<option value="osperf-Mem">OS Memory</option>
-						<option value="osperf-Cpu">OS Cpu</option>
-						<option value="osperf-Filesystem">OS Filesystem</option>
-						<option value="vmware-Mem">VMware Memory</option>
-						<option value="vmware-Cpu">VMware Cpu</option>
-						<option value="vmware-Datastore">VMware Datastore</option>
-						<option value="Hyper-V-Mem">Hyper-V Memory</option>
-						<option value="Hyper-V-Cpu">Hyper-V Cpu</option>
-						<option value="Hyper-V-Datastore">Hyper-V Datastore</option>
-						<option value="xenserver-Mem">Xenserver Memory</option>
-						<option value="xenserver-DiskUsed">Xenserver Disk Used</option>
-
-					</select>
-				</div>
-				<div id="availableElements">
-					Select Element:
-					<select id="elementId" class="element-status-setting">
-						<option value="-1">Loading...</option>
-					</select>
-				</div>
-				<div id="MonthlyTimeFrame">
-					Based on how many months of data?:
-					<select id="MonthSelector" class="time-frame-selector">
-						<option value="1">1</option>
-						<option value="2">2</option>
-						<option value="3" selected="selected">3</option>
-						<option value="4">4</option>
-						<option value="5">5</option>
-						<option value="6">6</option>
-						<option value="7">7</option>
-						<option value="8">8</option>
-						<option value="9">9</option>
-						<option value="10">10</option>
-					</select>
-				</div>
-				<div id="CapacitySliderDiv">
-					Capacity Buffer:
-					<input type="range" name="capacityBuffer" id="capacitySlider" min="50" max="150"><div id="CurCapacityBuffer"></div>
-				<br/>
-				<div id="MetricType">
-					Based on the daily what?:
+				<div id="widgetSettings-left">
+					<div id="availableQueries">
+						Query Type:
+						<select id="QueryTypeSelector" class="query-type-setting">						
+							<option value="osperf-Mem">OS Memory</option>
+							<option value="osperf-Cpu">OS Cpu</option>
+							<option value="osperf-Filesystem">OS Filesystem</option>
+							<option value="vmware-Mem">VMware Memory</option>
+							<option value="vmware-Cpu">VMware Cpu</option>
+							<option value="vmware-Datastore">VMware Datastore</option>
+							<option value="Hyper-V-Mem">Hyper-V Memory</option>
+							<option value="Hyper-V-Cpu">Hyper-V Cpu</option>
+							<option value="Hyper-V-Datastore">Hyper-V Datastore</option>
+							<option value="xenserver-Mem">Xenserver Memory</option>
+							<option value="xenserver-DiskUsed">Xenserver Disk Used</option>
+						</select>
+					</div>
+					<div id="availableElements">
+						Select Element:
+						<select id="elementId" class="element-status-setting">
+							<option value="-1">Loading...</option>
+						</select>
+					</div>
+					<div id="MonthlyTimeFrame">
+						Based on how many months of data?:
+						<select id="MonthSelector" class="time-frame-selector">
+							<option value="1">1</option>
+							<option value="2">2</option>
+							<option value="3" selected="selected">3</option>
+							<option value="4">4</option>
+							<option value="5">5</option>
+							<option value="6">6</option>
+							<option value="7">7</option>
+							<option value="8">8</option>
+							<option value="9">9</option>
+							<option value="10">10</option>
+							<option value="11">11</option>
+							<option value="12">12</option>
+						</select>
+					</div>
+					<div id="CapacitySliderDiv">
+						Capacity Buffer:
+						<input type="range" name="capacityBuffer" id="capacitySlider" min="50" max="150"><div id="CurCapacityBuffer"></div>
 					<br/>
-					<input type="radio" id="max" class="element-status-setting" name="metricType" value="max"> Max
-					<br/>
-					<input type="radio" checked id="avg" class="element-status-setting" name="metricType" value="avg"> Average
-					<br/>
-					<input type="radio" id="min" class="element-status-setting" name="metricType" value="min"> Min
-					<br/>
+					</div>
+					<div id="MetricType">
+						Based on the daily what?:
+						<br/>
+						<input type="radio" id="max" class="element-status-setting" name="metricType" value="max"> Max
+						<br/>
+						<input type="radio" checked id="avg" class="element-status-setting" name="metricType" value="avg"> Average
+						<br/>
+						<input type="radio" id="min" class="element-status-setting" name="metricType" value="min"> Min
+						<br/>
+					</div>
 				</div>
-			</br></br>
+				<div id="widgetSettings-right">
 				<div id="WhatIfSettings">
 					What If I add? <button type="button" id="addVm">+</button>
 					<div id="vms">
 					</div>
-
-				</div>
 				<button id="closeSettings">Close</button>
+				</div>
+				<br style="clear:both;"/>
+				</div>
 			</form>
 		</div>
-
-		<div id ="infoPanel"></div></br>
-		<div id = "widgetChart"></div>
+		<div id ="infoPanel" style="z-index:10; position: relative; width:90%;"></div></br>
+		<div id ="widgetChart"></div>
 		<div id="statusBar"></div>
-
-
 	</body>
 </html>
-
 ]]>
 	</Content>
 </Module>

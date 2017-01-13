@@ -2,11 +2,9 @@
 	text-align: center;
 }
 
-
 #infoTitle {
 	font-weight: bold;
 	font-size:	150%;
-
 }
 
 .infoText {
@@ -18,7 +16,40 @@
 	width:33%;
 }
 
-
 #widgetSettings {
-	font-size: 115%;
+    font-size: 115%;
+	line-height:120%;
+	margin: 10px 10px 40px 10px;
+	padding: 6px;
+	background-color: #f0f0f0;
+	z-index: 15;
+	position: absolute;
+	width: 100%
+}
+
+#widgetChart {
+	margin-top: -50px;
+}
+
+#widgetOptions {
+}
+
+#WhatIfSettings {
+
+}
+#widgetSettings-left{
+	position: relative;
+	float:left;
+	vertical-align:top;
+	text-align:top;
+	clear:none;
+	width:45%
+}
+#widgetSettings-right {
+	position: relative;
+	float:right;
+	vertical-align:top;
+	text-align:top;
+	clear:none;
+	width:45%
 }

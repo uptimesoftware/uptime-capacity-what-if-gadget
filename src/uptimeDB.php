@@ -166,68 +166,59 @@ class uptimeDB
 
 	}
 
-	private function execMysqlQuery($sql)
-	{
-			$output = array();
-			$result = mysqli_query($this->DB, $sql);
-			if (!$result)
-			{
-				die('Invalid query: ' . mysqli_error($this->DB));
+    private function execMysqlQuery($sql) {
+        $output = array();
+        $result = mysqli_query($this->DB, $sql);
+        if (!$result) {
+            die('Invalid query: ' . mysqli_error($this->DB));
+        } else {
+            while ($row = mysqli_fetch_assoc($result)) {
+                $row = array_change_key_case($row, CASE_UPPER);
+                array_push($output, $row);
+            }
+			odbc_free_result($result);
+            return $output;
+        }
+    }
+
+    private function execOracleQuery($sql) {
+        $output = array();
+        $result = odbc_exec($this->DB, $sql);
+        if (!$result) {
+            die("Invalid Query: " . odbc_errormsg());
+        } else {
+            while ($row = odbc_fetch_array($result)) {
+                $row = array_change_key_case($row, CASE_UPPER);
+                array_push($output, $row);
+            }
+			odbc_free_result($result);	
+            return $output;
+        }
+    }
+
+	private function execMssqlQuery($sql) {
+		$output = array();
+		$result = odbc_exec($this->DB, $sql);
+		if (!$result) {
+			die("Invalid Query: " . odbc_errormsg());
+		} else {
+			while($row = odbc_fetch_array($result)) {
+				$row = array_change_key_case($row, CASE_UPPER);
+				array_push($output, $row);
 			}
-			else
-			{
-				while($row = mysqli_fetch_assoc($result))
-				{
-					$row = array_change_key_case($row, CASE_UPPER);
-					array_push($output, $row);
-				}
-				return $output;
-			}
+			odbc_free_result($result);			
+			return $output;
+		}
 	}
 
-	private function execOracleQuery($sql)
-	{
-			$output = array();
-			$result = odbc_exec($this->DB, $sql);
-			if (!$result) {
-				die("Invalid Query: " . odbc_errormsg());
+	public function closeDB() {
+		if ($this->DB) {
+			if ($this->dbType == "mysql") {
+				mysqli_close($this->DB);
+			} else {
+				odbc_close($this->DB);
 			}
-			else
-			{
-				while($row = odbc_fetch_array($result))
-				{
-					$row = array_change_key_case($row, CASE_UPPER);
-					array_push($output, $row);
-				}
-				return $output;
-			}
-
+		}
 	}
-
-	private function execMssqlQuery($sql)
-	{
-			$output = array();
-			$result = odbc_exec($this->DB, $sql);
-			if (!$result) {
-				die("Invalid Query: " . odbc_errormsg());
-			}
-			else
-			{
-				while($row = odbc_fetch_array($result))
-				{
-					$row = array_change_key_case($row, CASE_UPPER);
-					array_push($output, $row);
-				}
-				return $output;
-			}
-        odbc_free_result($result);
-	}
-
-
-
 }
-
-
-
-
 ?>

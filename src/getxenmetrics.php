@@ -367,17 +367,11 @@ GROUP BY
 	{
 		echo "No Data";
 	}
-
-
 }
 
-	
-
-
-    
 // Unsupported request
-else {
-    echo "Error: Unsupported Request '$query_type'" . "</br>";
-    }
+else {echo "Error: Unsupported Request '$query_type'" . "</br>";}
 
+// close sessions
+$db->closeDB();
 ?>

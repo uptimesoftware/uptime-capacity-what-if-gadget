@@ -47,7 +47,6 @@ $db = new uptimeDB;
 if ($db->connectDB())
 {
 	echo "";
-
 }
 else
 {
@@ -55,10 +54,8 @@ else
  exit(1);
 }
 
-
 if ($query_type == "Hyper-V-Mem")
 {
-
 	$min_mem_usage_array = array();
 	$max_mem_usage_array = array();
 	$avg_mem_usage_array = array();
@@ -81,14 +78,14 @@ if ($query_type == "Hyper-V-Mem")
             max(a.memory_usage) as MAX_MEM_USAGE,
             avg(a.memory_usage) as AVG_MEM_USAGE,
             min(a.memory_total) as TOTAL_CAPACITY
-	FROM
+		FROM
             hyperv_perf_aggregate a
-	JOIN hyperv_perf_sample s
+		JOIN hyperv_perf_sample s
             ON (
                 s.sample_id = a.sample_id AND
                 s.sample_time > @time_from
             )
-	JOIN hyperv_object o
+		JOIN hyperv_object o
             ON (
                 s.hyperv_object_id = o.hyperv_object_id AND
                 s.hyperv_object_id = @hyperv_object_id
@@ -99,7 +96,6 @@ if ($query_type == "Hyper-V-Mem")
             year(s.sample_time),
             month(s.sample_time),
             day(s.sample_time)";
-			
 	$oracle = "SELECT 
 		s.hyperv_object_id, 
 		o.hyperv_name as NAME,
@@ -251,14 +247,14 @@ elseif ($query_type == "Hyper-V-Cpu")
             max(a.cpu_usage) as MAX_CPU_USAGE,
             avg(a.cpu_usage) as AVG_CPU_USAGE,
             min(a.cpu_total) as TOTAL_CAPACITY
-	FROM
+		FROM
             hyperv_perf_aggregate a
-	JOIN hyperv_perf_sample s
+		JOIN hyperv_perf_sample s
             ON (
 		s.sample_id = a.sample_id AND
 		s.sample_time > @time_from
             )
-	JOIN hyperv_object o
+		JOIN hyperv_object o
             ON (
 		s.hyperv_object_id = o.hyperv_object_id AND
 		s.hyperv_object_id = @hyperv_object_id
@@ -299,7 +295,6 @@ elseif ($query_type == "Hyper-V-Cpu")
 		EXTRACT(YEAR FROM s.sample_time),
 		EXTRACT(MONTH FROM s.sample_time), 
 		EXTRACT(DAY FROM s.sample_time)";
-	
 	$mysql = "SELECT 
 		s.hyperv_object_id, 
 		o.hyperv_name as NAME,
@@ -318,7 +313,6 @@ elseif ($query_type == "Hyper-V-Cpu")
 		s.hyperv_object_id = o.hyperv_object_id AND
 		s.sample_time > date_sub(now(),interval  ". $time_frame . " month) AND
 		s.hyperv_object_id = $hyperv_object_id
-
 	GROUP BY 
 		s.hyperv_object_id,
 		year(s.sample_time),
@@ -380,7 +374,6 @@ elseif ($query_type == "Hyper-V-Cpu")
 			'capacity' => $capacity,
 			'unit' => 'GHz',
 			'series' => $avg_cpu_usage_array
-
 			);
 	}
 
@@ -396,12 +389,8 @@ elseif ($query_type == "Hyper-V-Cpu")
 	{
 		echo "No Data";
 	}
-
-
-
-
-
 }
+
 elseif ( $query_type == "Hyper-V-Datastore")
 {
 	$min_datastore_usage_array = array();
@@ -437,12 +426,12 @@ elseif ( $query_type == "Hyper-V-Datastore")
             min(u.capacity) as TOTAL_CAPACITY
         FROM
             hyperv_perf_datastore_usage u
-	JOIN hyperv_perf_sample s
+		JOIN hyperv_perf_sample s
             ON (
                 s.sample_id = u.sample_id AND
                 s.sample_time > @time_from
             )
-	JOIN hyperv_object o
+		JOIN hyperv_object o
             ON (
                 s.hyperv_object_id = o.hyperv_object_id AND
                 s.hyperv_object_id = @hyperv_object_id
@@ -490,36 +479,34 @@ elseif ( $query_type == "Hyper-V-Datastore")
 		EXTRACT(DAY FROM s.sample_time)";		
 
 	$datastoremySql = "SELECT 
-	s.hyperv_object_id, 
-	o.hyperv_name as NAME,
-	date(s.sample_time) as SAMPLE_TIME,
-	min(u.usage_total) as MIN_USAGE,
-	max(u.usage_total) as MAX_USAGE,
-	avg(u.usage_total) as AVG_USAGE,
-	min(u.provisioned) as MIN_PROV,
-	max(u.provisioned) as MAX_PROV,
-	avg(u.provisioned) as AVG_PROV,
-	(SELECT capacity FROM hyperv_perf_datastore_usage hpdu
+		s.hyperv_object_id, 
+		o.hyperv_name as NAME,
+		date(s.sample_time) as SAMPLE_TIME,
+		min(u.usage_total) as MIN_USAGE,
+		max(u.usage_total) as MAX_USAGE,
+		avg(u.usage_total) as AVG_USAGE,
+		min(u.provisioned) as MIN_PROV,
+		max(u.provisioned) as MAX_PROV,
+		avg(u.provisioned) as AVG_PROV,
+		(SELECT capacity FROM hyperv_perf_datastore_usage hpdu
 	INNER JOIN uptime.hyperv_latest_datastore_sample hlds 
 	ON hlds.sample_id = hpdu.sample_id and hlds.hyperv_object_id = $hyperv_object_id) AS CURR_CAPACITY,
-	u.capacity as TOTAL_CAPACITY,
-	day(s.sample_time), 
-	month(s.sample_time), 
-	year(s.sample_time) 
-FROM 
-	hyperv_perf_datastore_usage u, hyperv_perf_sample s, hyperv_object o
-WHERE 
-	s.sample_id = u.sample_id AND 
-	s.hyperv_object_id = o.hyperv_object_id AND
-	s.sample_time > date_sub(now(),interval  ". $time_frame . " month) AND
-	s.hyperv_object_id = $hyperv_object_id
-
-GROUP BY 
-	s.hyperv_object_id,
-	year(s.sample_time),
-	month(s.sample_time), 
-	day(s.sample_time)";
-
+		u.capacity as TOTAL_CAPACITY,
+		day(s.sample_time), 
+		month(s.sample_time), 
+		year(s.sample_time) 
+	FROM 
+		hyperv_perf_datastore_usage u, hyperv_perf_sample s, hyperv_object o
+	WHERE 
+		s.sample_id = u.sample_id AND 
+		s.hyperv_object_id = o.hyperv_object_id AND
+		s.sample_time > date_sub(now(),interval  ". $time_frame . " month) AND
+		s.hyperv_object_id = $hyperv_object_id
+	GROUP BY 
+		s.hyperv_object_id,
+		year(s.sample_time),
+		month(s.sample_time), 
+		day(s.sample_time)";
 
 	if ($db->dbType == 'oracle'){
 		$datastoreResults = $db->execQuery($datastoreOracle);
@@ -530,28 +517,29 @@ GROUP BY
 	}
 
 	$name = $datastoreResults[0]['NAME'];
-	$capacity = floatval($datastoreResults[0]['CURR_CAPACITY']);
+	$datastoreScale = 1e-6;
+	$capacity = floatval($datastoreResults[0]['CURR_CAPACITY'] * $datastoreScale);
 
 	foreach ($datastoreResults as $index => $row) {
 		$sample_time = strtotime($row['SAMPLE_TIME'])-$offset;
 		$x = $sample_time * 1000;
 
-		$data = array($x, floatval($row['MIN_USAGE']));
+		$data = array($x, floatval($row['MIN_USAGE'] * $datastoreScale ));
 		array_push($min_datastore_usage_array, $data);
 
-		$data = array($x, floatval($row['MAX_USAGE']));
+		$data = array($x, floatval($row['MAX_USAGE'] * $datastoreScale ));
 		array_push($max_datastore_usage_array, $data);
 
-		$data = array($x, floatval($row['AVG_USAGE']));
+		$data = array($x, floatval($row['AVG_USAGE'] * $datastoreScale ));
 		array_push($avg_datastore_usage_array, $data);
 
-		$data = array($x, floatval($row['MIN_PROV']));
+		$data = array($x, floatval($row['MIN_PROV'] * $datastoreScale ));
 		array_push($min_datastore_prov_array, $data);
 
-		$data = array($x, floatval($row['MAX_PROV']));
+		$data = array($x, floatval($row['MAX_PROV'] * $datastoreScale ));
 		array_push($max_datastore_prov_array, $data);
 
-		$data = array($x, floatval($row['AVG_PROV']));
+		$data = array($x, floatval($row['AVG_PROV'] * $datastoreScale ));
 		array_push($avg_datastore_prov_array, $data);
 	}
 
@@ -561,11 +549,13 @@ GROUP BY
 		$usage_series = array(
 			'name' => $name . " - Daily Actual Min",
 			'capacity' => $capacity,
+			'unit' => 'GBs',
 			'series' => $min_datastore_usage_array
 			);
 		$prov_series = array(
 			'name' => $name . " - Daily Provisioned Min",
 			'capacity' => $capacity,
+			'unit' => 'GBs',
 			'series' => $min_datastore_prov_array
 			);
 	}
@@ -575,11 +565,13 @@ GROUP BY
 		$usage_series = array(
 			'name' => $name . " - Daily Actual Max",
 			'capacity' => $capacity,
+			'unit' => 'GBs',
 			'series' => $max_datastore_usage_array
 			);
 		$prov_series = array(
 			'name' => $name . " - Daily Provisioned Max",
 			'capacity' => $capacity,
+			'unit' => 'GBs',
 			'series' => $max_datastore_prov_array
 			);
 	}
@@ -589,11 +581,13 @@ GROUP BY
 		$usage_series = array(
 			'name' => $name . " - Daily Actual Avg",
 			'capacity' => $capacity,
+			'unit' => 'GBs',
 			'series' => $avg_datastore_usage_array
 			);
 		$prov_series = array(
 			'name' => $name . " - Daily Provisioned Avg",
 			'capacity' => $capacity,
+			'unit' => 'GBs',
 			'series' => $avg_datastore_prov_array
 			);
 	}
@@ -610,13 +604,10 @@ GROUP BY
 	{
 		echo "No Data";
 	}
-
-
 }
-
 // Unsupported request
-else {
-    echo "Error: Unsupported Request '$query_type'" . "</br>";
-    }
+else { echo "Error: Unsupported Request '$query_type'" . "</br>";}
 
+// close sessions
+$db->closeDB();
 ?>
