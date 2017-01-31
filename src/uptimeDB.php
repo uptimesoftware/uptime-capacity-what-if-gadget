@@ -176,7 +176,7 @@ class uptimeDB
                 $row = array_change_key_case($row, CASE_UPPER);
                 array_push($output, $row);
             }
-			mysqli_free_result ( mysqli_result $result );
+			mysqli_free_result ( $result );
             return $output;
         }
     }
