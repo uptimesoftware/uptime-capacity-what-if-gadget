@@ -304,5 +304,7 @@ elseif ( $query_type == 'getXenServerDatastores')
 else { echo "Error: Unsupported Request '$query_type'" . "</br>"; }
 	
 // close sessions
-$db->closeDB();
+if(isset($db)) {
+	$db->closeDB();
+}
 ?>
