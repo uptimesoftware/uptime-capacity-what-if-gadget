@@ -53,6 +53,7 @@ if ($query_type == "vmware-Mem")
 	$min_mem_usage_array = array();
 	$max_mem_usage_array = array();
 	$avg_mem_usage_array = array();
+	$hostMemResults = array();
 
     $sql = "
         SET nocount ON;
@@ -72,14 +73,14 @@ if ($query_type == "vmware-Mem")
             max(a.memory_usage) as MAX_MEM_USAGE,
             avg(a.memory_usage) as AVG_MEM_USAGE,
             min(a.memory_total) as TOTAL_CAPACITY
-	FROM
+		FROM
             vmware_perf_aggregate a
-	JOIN vmware_perf_sample s
+		JOIN vmware_perf_sample s
             ON (
                 s.sample_id = a.sample_id AND
                 s.sample_time > @time_from
             )
-	JOIN vmware_object o
+		JOIN vmware_object o
             ON (
                 s.vmware_object_id = o.vmware_object_id AND
                 s.vmware_object_id = @vmware_object_id
@@ -88,6 +89,10 @@ if ($query_type == "vmware-Mem")
             s.vmware_object_id,
             o.vmware_name,
             year(s.sample_time),
+            month(s.sample_time),
+            day(s.sample_time)
+		ORDER BY
+			year(s.sample_time),
             month(s.sample_time),
             day(s.sample_time)";
 
@@ -109,7 +114,7 @@ if ($query_type == "vmware-Mem")
 		s.vmware_object_id = o.vmware_object_id AND
 		s.sample_time > date_sub(now(),interval  " . $time_frame . " month) AND
 		s.vmware_object_id = " .$vmware_object_id . "
-        GROUP BY
+	GROUP BY
 		s.vmware_object_id,
 		year(s.sample_time),
 		month(s.sample_time),
@@ -117,11 +122,14 @@ if ($query_type == "vmware-Mem")
 
 	if ($db->dbType == 'mysql'){
 		$hostMemResults = $db->execQuery($mysql);
-	} else{
+	} else {
 		$hostMemResults = $db->execQuery($sql);
 	}
-	
-	$name = $hostMemResults[0]['NAME'];
+	if(isset($hostMemResults[0])) {
+		$name = $hostMemResults[0]['NAME'];
+	} else {
+		exit("host memory array is empty");
+	}
 	$memScale = 1e-6;
 
 	foreach ($hostMemResults as $index => $row) {
@@ -140,57 +148,49 @@ if ($query_type == "vmware-Mem")
 
 	$capacity = floatval($hostMemResults[0]['TOTAL_CAPACITY'] * $memScale);
 
-	if ($metricType == 'min')
-	{
+	if ($metricType == 'min') {
 		$my_series = array(
 			'name' => $name . " - Daily Mem Min",
 			'capacity' => $capacity,
 			'unit' => 'GB',
 			'series' => $min_mem_usage_array
-
-			);
+		);
 	}
 
-	if ($metricType == 'max')
-	{
+	if ($metricType == 'max') {
 		$my_series = array(
 			'name' => $name . " - Daily Mem Max",
 			'capacity' => $capacity,
 			'unit' => 'GB',
 			'series' => $max_mem_usage_array
-
-			);
+		);
 	}
 
-	if ($metricType == 'avg')
-	{
+	if ($metricType == 'avg') {
 		$my_series = array(
 			'name' => $name . " - Daily Mem Avg",
 			'capacity' => $capacity,
 			'unit' => 'GB',
 			'series' => $avg_mem_usage_array
-			);
+		);
 	}
-	if (count($my_series['series']) > 0)
-	{
+	
+	if (count($my_series['series']) > 0) {
 		array_push($json, $my_series);
 	}
-	if (count($json) > 0)
-	{
+	if (count($json) > 0) {
 		echo json_encode($json);
-	}
-	else
-	{
+	} else {
 		echo "No Data";
 	}
 }
 
-elseif ($query_type == "vmware-Cpu")
-{
+elseif ($query_type == "vmware-Cpu") {
 	$min_cpu_usage_array = array();
 	$max_cpu_usage_array = array();
 	$avg_cpu_usage_array = array();
-
+	$hostCpuResults = array();
+	
     $sql = "
         SET nocount ON;
         DECLARE @vmware_object_id int;
@@ -251,6 +251,10 @@ elseif ($query_type == "vmware-Cpu")
 		s.vmware_object_id,
 		year(s.sample_time),
 		month(s.sample_time),
+		day(s.sample_time)
+	ORDER BY
+		year(s.sample_time),
+		month(s.sample_time),
 		day(s.sample_time)";
 
 	if ($db->dbType == 'mysql'){
@@ -259,7 +263,11 @@ elseif ($query_type == "vmware-Cpu")
 		$hostCpuResults = $db->execQuery($sql);
 	}
 
-	$name = $hostCpuResults[0]['NAME'];
+	if(isset($hostCpuResults[0])) {
+		$name = $hostCpuResults[0]['NAME'];
+	} else {
+		exit("host cpu array is empty");
+	}
 	$cpuScale = 1000;
 
 	foreach ($hostCpuResults as $index => $row) {
@@ -278,48 +286,39 @@ elseif ($query_type == "vmware-Cpu")
 
 	$capacity = floatval($hostCpuResults[0]['TOTAL_CAPACITY'] / $cpuScale);
 
-	if ($metricType == 'min')
-	{
+	if ($metricType == 'min') {
 		$my_series = array(
 			'name' => $name . " - Daily Cpu Min",
 			'capacity' => $capacity,
 			'unit' => 'GHz',
 			'series' => $min_cpu_usage_array
-
-			);
+		);
 	}
 
-	if ($metricType == 'max')
-	{
+	if ($metricType == 'max') {
 		$my_series = array(
 			'name' => $name . " - Daily Cpu Max",
 			'capacity' => $capacity,
 			'unit' => 'GHz',
 			'series' => $max_cpu_usage_array
-			);
+		);
 	}
 
-	if ($metricType == 'avg')
-	{
+	if ($metricType == 'avg') {
 		$my_series = array(
 			'name' => $name . " - Daily Cpu Avg",
 			'capacity' => $capacity,
 			'unit' => 'GHz',
 			'series' => $avg_cpu_usage_array
-
-			);
+		);
 	}
 
-	if (count($my_series['series']) > 0)
-	{
+	if (count($my_series['series']) > 0) {
 		array_push($json, $my_series);
 	}
-	if (count($json) > 0)
-	{
+	if (count($json) > 0) {
 		echo json_encode($json);
-	}
-	else
-	{
+	} else {
 		echo "No Data";
 	}
 }
@@ -332,7 +331,8 @@ elseif ( $query_type == "vmware-Datastore")
 	$min_datastore_prov_array = array();
 	$max_datastore_prov_array = array();
 	$avg_datastore_prov_array = array();
-    
+   	$datastoreResults = array();
+	
 	$datastoreSql = "
         SET nocount ON;
         DECLARE @vmware_object_id int;
@@ -359,12 +359,12 @@ elseif ( $query_type == "vmware-Datastore")
             min(u.capacity) as TOTAL_CAPACITY
         FROM
             vmware_perf_datastore_usage u
-	JOIN vmware_perf_sample s
+		JOIN vmware_perf_sample s
             ON (
                 s.sample_id = u.sample_id AND
                 s.sample_time > @time_from
             )
-	JOIN vmware_object o
+		JOIN vmware_object o
             ON (
                 s.vmware_object_id = o.vmware_object_id AND
                 s.vmware_object_id = @vmware_object_id
@@ -374,9 +374,14 @@ elseif ( $query_type == "vmware-Datastore")
             o.vmware_name,
             year(s.sample_time),
             month(s.sample_time),
-            day(s.sample_time)";	
+            day(s.sample_time)
+		ORDER BY
+			year(s.sample_time),
+            month(s.sample_time),
+            day(s.sample_time)";			
 	
-	$datastoremySql = "SELECT 
+	$datastoremySql = "
+	SELECT 
 		s.vmware_object_id, 
 		o.vmware_name as NAME,
 		date(s.sample_time) as SAMPLE_TIME,
@@ -404,6 +409,10 @@ elseif ( $query_type == "vmware-Datastore")
 		s.vmware_object_id,
 		year(s.sample_time),
 		month(s.sample_time), 
+		day(s.sample_time)
+	ORDER BY
+		year(s.sample_time),
+		month(s.sample_time),
 		day(s.sample_time)";
 
 	if ($db->dbType == 'mysql'){
@@ -412,8 +421,7 @@ elseif ( $query_type == "vmware-Datastore")
 		$datastoreResults = $db->execQuery($datastoreSql);
 	}
 
-// sometimes we see no data.. do exception handling 
-	if ($datastoreResults[0]) {
+	if (isset($datastoreResults[0])) {
 		$name = $datastoreResults[0]['NAME'];
 		} else {
 			exit("datastore array is empty ($datastoreResults)");
