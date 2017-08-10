@@ -116,31 +116,34 @@ if ( $query_type == "osperf-Mem")
 
 	$capacity = floatval($hostMemResults[0]['TOTAL_CAPACITY'] * $memScale);
 
-	if ($metricType == 'min') {
+    switch ($metricType) {
+	case 'min':
 		$my_series = array(
 			'name' => $name . " - Daily Mem Min",
 			'capacity' => $capacity,
 			'unit' => 'GB',
 			'series' => $min_mem_usage_array
 		);
-	}
+		break;
 
-	if ($metricType == 'max') {
+	case 'max':
 		$my_series = array(
 			'name' => $name . " - Daily Mem Max",
 			'capacity' => $capacity,
 			'unit' => 'GB',
 			'series' => $max_mem_usage_array
 		);
-	}
-
-	if ($metricType == 'avg') {
+		break;
+		
+	case 'avg':
 		$my_series = array(
 			'name' => $name . " - Daily Mem Avg",
 			'capacity' => $capacity,
 			'unit' => 'GB',
 			'series' => $avg_mem_usage_array
 		);
+	default:
+		$my_series = [];
 	}
 
 	if (count($my_series['series']) > 0) {
@@ -212,31 +215,34 @@ elseif ( $query_type == "osperf-Cpu") {
 
 	$capacity = floatval((100 * $hostCpuResults[0]['NUM_CPU'] ) / $cpuScale);
 
-	if ($metricType == 'min') {
+    switch ($metricType) {
+	case 'min':
 		$my_series = array(
 			'name' => $name . " - Daily Cpu Min",
 			'capacity' => $capacity,
 			'unit' => '%',
 			'series' => $min_cpu_usage_array
 		);
-	}
-
-	if ($metricType == 'max') {
+		break;
+	case 'max':
 		$my_series = array(
 			'name' => $name . " - Daily Cpu Max",
 			'capacity' => $capacity,
 			'unit' => '%',
 			'series' => $max_cpu_usage_array
 		);
-	}
-
-	if ($metricType == 'avg') {
+		break;
+	case 'avg':
 		$my_series = array(
 			'name' => $name . " - Daily Cpu Avg",
 			'capacity' => $capacity,
 			'unit' => '%',
 			'series' => $avg_cpu_usage_array
 		);
+		break;
+	
+	default:
+		$my_series = [];
 	}
 
 	if (count($my_series['series']) > 0) {
@@ -341,7 +347,8 @@ elseif ( $query_type == "osperf-Filesystem") {
 	}
 
 
-	if ($metricType == 'min') {
+    switch ($metricType) {
+	case 'min':
 		$usage_series = array(
 			'name' => $name . " - Daily Actual Min",
 			'capacity' => $capacity,
@@ -353,9 +360,9 @@ elseif ( $query_type == "osperf-Filesystem") {
 			'capacity' => $capacity,
 			'series' => $min_datastore_prov_array
 		);
-	}
+		break;
 
-	if ($metricType == 'max') {
+	case 'max':
 		$usage_series = array(
 			'name' => $name . " - Daily Max",
 			'capacity' => $capacity,
@@ -367,9 +374,9 @@ elseif ( $query_type == "osperf-Filesystem") {
 			'capacity' => $capacity,
 			'series' => $max_datastore_prov_array
 		);
-	}
-
-	if ($metricType == 'avg') {
+		break;
+		
+	case 'avg':
 		$usage_series = array(
 			'name' => $name . " - Daily Actual Avg",
 			'capacity' => $capacity,
@@ -381,6 +388,11 @@ elseif ( $query_type == "osperf-Filesystem") {
 			'capacity' => $capacity,
 			'series' => $avg_datastore_prov_array
 		);
+		break;
+	
+	default:
+		$usage_series = [];
+		$prov_series = [];
 	}
 
 	if (count($usage_series['series']) > 0) {
