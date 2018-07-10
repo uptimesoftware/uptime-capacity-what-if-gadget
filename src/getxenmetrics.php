@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 //DISCLAIMER:
 //LIMITATION OF LIABILITY: uptime software does not warrant that software obtained
@@ -18,6 +18,7 @@
 header("Content-type: text/json");
 
 include("uptimeDB.php");
+
 
 if (isset($_GET['query_type'])){
 	$query_type = $_GET['query_type'];
@@ -51,7 +52,7 @@ if ($db->connectDB())
 }
 else
 {
- echo "unable to connect to DB exiting";	
+ echo "unable to connect to DB exiting";
  exit(1);
 }
 
@@ -62,18 +63,70 @@ if ($query_type == "xenserver-Mem")
 	$min_mem_usage_array = array();
 	$max_mem_usage_array = array();
 	$avg_mem_usage_array = array();
+	$hostMemResults = array();
+	$capacitySQLResults = array();
+
+	$getXenserverMemCapcitySql = $db->DB->prepare("SELECT
+		e.entity_id,
+		e.name,
+		p.name as NAME,
+		avg(dd.value) as VAL
+	FROM
+		erdc_base b, erdc_configuration c, erdc_parameter p, erdc_decimal_data dd, erdc_instance i, entity e
+	WHERE
+	    b.name = 'XenServer' AND
+		b.erdc_base_id = c.erdc_base_id AND
+		b.erdc_base_id = p.erdc_base_id AND
+		(p.name = 'hostMemFree' or p.name = 'HostMemUsed') AND
+		p.erdc_parameter_id = dd.erdc_parameter_id AND
+		dd.erdc_instance_id = i.erdc_instance_id AND
+		dd.sampletime >= CURDATE() AND
+		i.entity_id = e.entity_id AND
+		e.entity_id = ?
+	GROUP BY
+		e.entity_id,
+		year(dd.sampletime),
+		month(dd.sampletime),
+		day(dd.sampletime),
+		p.name");
+
+		$getXenserverMemCapcitySql->bind_param("d", $element_id);
+			$getXenserverMemCapcitySql->execute();
+			$capacity_sql_result = $getXenserverMemCapcitySql->get_result();
+			while ($capacity_sql_row = $capacity_sql_result->fetch_assoc()) {
+				array_push($capacitySQLResults, $capacity_sql_row);
+			}
+			$getXenserverMemCapcitySql->close();
 
 
-	$getXenServerMemUsedsql = "SELECT
+		$myhostMemUsed = 0;
+		$myhostMemFree = 0;
+		foreach ($capacitySQLResults as $index => $row)
+		{
+			if ($row['NAME'] == 'hostMemFree')
+			{
+				$myhostMemFree = $row['VAL'];
+			}
+			elseif ( $row['NAME'] == 'hostMemUsed')
+			{
+				$myhostMemUsed = $row['VAL'];
+			}
+		}
+
+		$capacity = $myhostMemUsed + $myhostMemFree;
+
+
+
+	$getXenServerMemUsedsql = $db->DB->prepare("SELECT
 			e.entity_id,
 			e.display_name as NAME,
 			date(dd.sampletime) as SAMPLE_TIME,
 			min(dd.value) as MIN_MEM_USAGE,
 			max(dd.value) as MAX_MEM_USAGE,
 			avg(dd.value) as AVG_MEM_USAGE,
-			day(dd.sampletime), 
-			month(dd.sampletime), 
-			year(dd.sampletime) 
+			day(dd.sampletime),
+			month(dd.sampletime),
+			year(dd.sampletime)
 		FROM
 			erdc_base b, erdc_configuration c, erdc_parameter p, erdc_decimal_data dd, erdc_instance i, entity e
 		WHERE
@@ -83,81 +136,40 @@ if ($query_type == "xenserver-Mem")
 			p.name = 'hostMemUsed' AND
 			p.erdc_parameter_id = dd.erdc_parameter_id AND
 			dd.erdc_instance_id = i.erdc_instance_id AND
-			dd.sampletime > date_sub(now(),interval  ". $time_frame . " month) AND
+			dd.sampletime > date_sub(now(),interval ? month) AND
 			i.entity_id = e.entity_id AND
-			e.entity_id = $element_id
+			e.entity_id = ?
 
-		GROUP BY 
+		GROUP BY
 			e.entity_id,
 			year(dd.sampletime),
-			month(dd.sampletime), 
-			day(dd.sampletime)";
+			month(dd.sampletime),
+			day(dd.sampletime)");
 
+		$getXenServerMemUsedsql->bind_param("sd", $time_frame, $element_id);
+		$getXenServerMemUsedsql->execute();
+			$host_mem_sql_result = $getXenServerMemUsedsql->get_result();
+			while ($host_mem_sql_row = $host_mem_sql_result->fetch_assoc()) {
+				array_push($hostMemResults, $host_mem_sql_row);
+			}
+	$getXenServerMemUsedsql->close();
 
-	$getXenserverMemCapcitySql = "SELECT
-	e.entity_id,
-	e.name,
-	p.name as NAME,
-	avg(dd.value) as VAL
-FROM
-	erdc_base b, erdc_configuration c, erdc_parameter p, erdc_decimal_data dd, erdc_instance i, entity e
-WHERE
-    b.name = 'XenServer' AND
-	b.erdc_base_id = c.erdc_base_id AND
-	b.erdc_base_id = p.erdc_base_id AND
-	(p.name = 'hostMemFree' or p.name = 'HostMemUsed') AND
-	p.erdc_parameter_id = dd.erdc_parameter_id AND
-	dd.erdc_instance_id = i.erdc_instance_id AND
-	dd.sampletime >= CURDATE() AND
-	i.entity_id = e.entity_id AND
-	e.entity_id = $element_id 
-GROUP BY 
-	e.entity_id,
-	year(dd.sampletime),
-	month(dd.sampletime), 
-	day(dd.sampletime),
-	p.name";
+			$name = $hostMemResults[0]['NAME'];
+			$memScale = 1;
 
-	$capacitySQLResults = $db->execQuery($getXenserverMemCapcitySql);
+			foreach ($hostMemResults as $index => $row) {
+				$sample_time = strtotime($row['SAMPLE_TIME'])-$offset;
+				$x = $sample_time * 1000;
 
-	$myhostMemUsed = 0;
-	$myhostMemFree = 0;
-	foreach ($capacitySQLResults as $index => $row) 
-	{
-		if ($row['NAME'] == 'hostMemFree')
-		{
-			$myhostMemFree = $row['VAL'];
-		}
-		elseif ( $row['NAME'] == 'hostMemUsed')
-		{
-			$myhostMemUsed = $row['VAL'];
-		}
-	}
+				$data = array($x, floatval($row['MIN_MEM_USAGE'] * $memScale ));
+				array_push($min_mem_usage_array, $data);
 
-	$capacity = $myhostMemUsed + $myhostMemFree;
+				$data = array($x, floatval($row['MAX_MEM_USAGE'] * $memScale ));
+				array_push($max_mem_usage_array, $data);
 
-
-
-
-	$hostMemResults = $db->execQuery($getXenServerMemUsedsql);
-
-	$name = $hostMemResults[0]['NAME'];
-	$memScale = 1;
-
-	foreach ($hostMemResults as $index => $row) {
-		$sample_time = strtotime($row['SAMPLE_TIME'])-$offset;
-		$x = $sample_time * 1000;
-
-		$data = array($x, floatval($row['MIN_MEM_USAGE'] * $memScale ));
-		array_push($min_mem_usage_array, $data);
-
-		$data = array($x, floatval($row['MAX_MEM_USAGE'] * $memScale ));
-		array_push($max_mem_usage_array, $data);
-
-		$data = array($x, floatval($row['AVG_MEM_USAGE'] * $memScale ));
-		array_push($avg_mem_usage_array, $data);
-	}
-
+				$data = array($x, floatval($row['AVG_MEM_USAGE'] * $memScale ));
+				array_push($avg_mem_usage_array, $data);
+			}
 
 	if ($metricType == 'min')
 	{
@@ -218,11 +230,12 @@ elseif ( $query_type == "xenserver-DiskUsed")
 	$min_disk_usage_array = array();
 	$max_disk_usage_array = array();
 	$avg_disk_usage_array = array();
+    $diskCapacityResults = array();
+    $diskUsedResults = array();
 
 
 
-
-	$diskUsedSql = "SELECT
+	$diskUsedSql = $db->DB->prepare("SELECT
 		e.entity_id,
 		e.display_name as ENTITY_NAME,
 		ro.id,
@@ -231,9 +244,9 @@ elseif ( $query_type == "xenserver-DiskUsed")
 		max(rov.value) as MAX_USAGE,
 		avg(rov.value) as AVG_USAGE,
 		date(rov.sample_time) as SAMPLE_TIME,
-		day(rov.sample_time), 
-		month(rov.sample_time), 
-		year(rov.sample_time) 
+		day(rov.sample_time),
+		month(rov.sample_time),
+		year(rov.sample_time)
 	FROM
 		erdc_base b, erdc_configuration c, erdc_instance i, entity e, ranged_object ro, ranged_object_value rov
 	WHERE
@@ -244,19 +257,26 @@ elseif ( $query_type == "xenserver-DiskUsed")
 		i.erdc_instance_id = ro.instance_id AND
 		ro.id = rov.ranged_object_id AND
 		rov.name = 'diskUsed' AND
-		rov.sample_time > date_sub(now(),interval  ". $time_frame . " month) AND
-		e.entity_id = $element_id AND
-		ro.object_name = '$datastore_name'
+		rov.sample_time > date_sub(now(),interval ? month) AND
+		e.entity_id = ? AND
+		ro.object_name = ?
 	GROUP BY
 		ro.id,
 		e.entity_id,
 		year(rov.sample_time),
-		month(rov.sample_time), 
-		day(rov.sample_time)";
+		month(rov.sample_time),
+		day(rov.sample_time)");
+
+    $diskUsedSql->bind_param("sds", $time_frame, $element_id, $datastore_name);
+ 	$diskUsedSql->execute();
+ 	$disk_used_sql_result = $diskUsedSql->get_result();
+ 	while ($disk_used_sql_row = $disk_used_sql_result->fetch_assoc()) {
+ 		array_push($diskUsedResults, $disk_used_sql_row);
+ 	}
+	$diskUsedSql->close();
 
 
-
-	$diskCapacitySql = "SELECT
+	$diskCapacitySql = $db->DB->prepare("SELECT
 	e.entity_id,
 	e.name,
 	ro.id,
@@ -274,23 +294,28 @@ WHERE
 	i.erdc_instance_id = ro.instance_id AND
 	ro.id = rov.ranged_object_id AND
 	(rov.name = 'diskFree' or rov.name = 'diskUsed' ) AND
-	ro.object_name = '$datastore_name' AND
+	ro.object_name = ? AND
 	rov.sample_time >= CURDATE()
 GROUP BY
 	ro.id,
 	e.entity_id,
 	year(rov.sample_time),
-	month(rov.sample_time), 
+	month(rov.sample_time),
 	day(rov.sample_time),
-	rov.name";
+	rov.name");
 
+    $diskCapacitySql->bind_param("s", $datastore_name);
+    $diskCapacitySql->execute();
+ 	$disk_capacity_sql_result = $diskCapacitySql->get_result();
+ 	while ($disk_capacity_sql_row = $disk_capacity_sql_result->fetch_assoc()) {
+ 		array_push($diskCapacityResults, $disk_capacity_sql_row);
+ 	}
+	$diskCapacitySql->close();
 
-
-	$diskCapacityResults = $db->execQuery($diskCapacitySql);
 
 	$mydiskUsed = 0;
 	$mydiskFree = 0;
-	foreach ($diskCapacityResults as $index => $row) 
+	foreach ($diskCapacityResults as $index => $row)
 	{
 		if ($row['NAME'] == 'diskFree')
 		{
@@ -304,8 +329,6 @@ GROUP BY
 
 	$capacity = $mydiskUsed + $mydiskFree;
 
-
-	$diskUsedResults = $db->execQuery($diskUsedSql);
 
 	$name = $diskUsedResults[0]['ENTITY_NAME'] . " - " . $diskUsedResults[0]['OBJ_NAME'];
 	$datastoreScale = 1;

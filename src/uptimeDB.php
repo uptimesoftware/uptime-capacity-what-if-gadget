@@ -30,7 +30,7 @@ class uptimeDB
 	private $dbName;
 	private $dbUsername;
 	private $dbPassword;
-	private $DB;
+	public $DB;
 
 	public function  __construct()
 	{
