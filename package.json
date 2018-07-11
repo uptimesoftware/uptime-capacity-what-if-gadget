@@ -1,7 +1,7 @@
 {
   "name": "uptime.CapacityWhatIfGadget",
   "title": "Capacity Planning What-If Gadget",
-  "version": "1.0.0",
+  "version": "1.8",
   "description": "uptime Capacity Planning What-If Gadget",
   "main": "src/uptimeCapacity.js",
   "repository": {
