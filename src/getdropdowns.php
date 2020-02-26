@@ -59,7 +59,7 @@ if ($query_type == "getEsxHosts")
 
     $elements = $uptime_api->getElements("type=Server&isMonitored=1");
 
-    foreach ($elements as $key => $value) {
+    foreach ((array)$elements as $key => $value) {
 
     	if( preg_match("/ESX/", $value['typeOs']) )
     	{
@@ -88,7 +88,7 @@ elseif ($query_type == "getVMobjects")
         ";
 
     $results = $db->execQuery($getVMobjectsSql);
-    foreach ($results as $row)
+    foreach ((array)$results as $row)
     {
         $id = $row['VMWARE_OBJECT_ID'];
         $name = $row['DISPLAY_NAME'];
@@ -113,7 +113,7 @@ elseif ($query_type == "gethypervVMobjects")
      where mor_type in ('HostSystem')  ";
 
     $results = $db->execQuery($getVMobjectsSql);
-    foreach ($results as $row)
+    foreach ((array)$results as $row)
     {
         $id = $row['HYPERV_OBJECT_ID'];
         $name = $row['DISPLAY_NAME'];
@@ -133,11 +133,11 @@ elseif ($query_type == "getAgentSystems")
     // Create API object
     $uptime_api = new uptimeApi($uptime_api_username, $uptime_api_password, $uptime_api_hostname, $uptime_api_port, $uptime_api_version, $uptime_api_ssl);
     $elements = $uptime_api->getElements("type=Server&isMonitored=1");
-    foreach ($elements as $d) {
+    foreach ((array)$elements as $d) {
         if (!preg_match("/Vcenter/", $d['typeSubtype'] ) && !preg_match("/HyperVHost/", $d['typeSubtype']))
         {
             $has_ppg = False;
-            foreach($d['monitors'] as $monitor)
+            foreach((array)$d['monitors'] as $monitor)
             {
                 if($monitor['name'] == "Platform Performance Gatherer")
                 {
@@ -173,7 +173,7 @@ elseif ($query_type == "getVMdatastores")
         ";
 
     $results = $db->execQuery($getVMobjectsSql);
-    foreach ($results as $row)
+    foreach ((array)$results as $row)
     {
         $id = $row['VMWARE_OBJECT_ID'];
         $name = $row['DISPLAY_NAME'];
@@ -198,7 +198,7 @@ elseif ($query_type == "gethypervVMdatastores")
 						where ho1.mor_type in ('Datastore') ";
 
     $results = $db->execQuery($getVMobjectsSql);
-    foreach ($results as $row)
+    foreach ((array)$results as $row)
     {
         $id = $row['HYPERV_OBJECT_ID'];
         $name = $row['DISPLAY_NAME']." (".$row['HOST'].")";
@@ -227,7 +227,7 @@ elseif ($query_type == "getXenServers") {
                                 i.entity_id = e.entity_id";
 
     $xenservers = $db->execQuery($get_xenserver_sql);
-    foreach ($xenservers as $row) {
+    foreach ((array)$xenservers as $row) {
        $id = $row['ENTITY_ID'];
        $name = $row['DISPLAY_NAME'];
        $json[$name] = $id;
@@ -290,7 +290,7 @@ elseif ( $query_type == 'getXenServerDatastores')
 		$datastore_results = $db->execQuery($get_xenserver_datastores_sql);
 	}
 
-    foreach ($datastore_results as $row) {
+    foreach ((array)$datastore_results as $row) {
         $id = $row['ID'] . "-" . $row['OBJ_NAME'];
         $name = $row['NAME'] . " - " . $row['OBJ_NAME'];
         $json[$name] = $id;

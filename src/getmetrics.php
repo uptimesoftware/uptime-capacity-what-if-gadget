@@ -142,7 +142,7 @@ GROUP BY
 	/*$name = $hostMemResults[0]['NAME'];*/
 	$memScale = 1e-6;
 
-	foreach ($hostMemResults as $index => $row) {
+	foreach ((array)$hostMemResults as $index => $row) {
 		$sample_time = strtotime($row['SAMPLE_TIME'])-$offset;
 		$x = $sample_time * 1000;
 
@@ -191,11 +191,11 @@ GROUP BY
 	}
 
 
-	if (count($my_series['series']) > 0)
+	if (count((array)$my_series['series']) > 0)
 	{
 		array_push($json, $my_series);
 	}
-	if (count($json) > 0)
+	if (count((array)$json) > 0)
 	{
 		echo json_encode($json);
 	}
@@ -293,7 +293,7 @@ GROUP BY
 	/*$name = $hostCpuResults[0]['NAME'];*/
 	$cpuScale = 1;
 
-	foreach ($hostCpuResults as $index => $row) {
+	foreach ((array)$hostCpuResults as $index => $row) {
 		$sample_time = strtotime($row['SAMPLE_TIME'])-$offset;
 		$x = $sample_time * 1000;
 
@@ -339,11 +339,11 @@ GROUP BY
 			);
 	}
 
-	if (count($my_series['series']) > 0)
+	if (count((array)$my_series['series']) > 0)
 	{
 		array_push($json, $my_series);
 	}
-	if (count($json) > 0)
+	if (count((array)$json) > 0)
 	{
 		echo json_encode($json);
 	}
@@ -428,7 +428,7 @@ GROUP BY
 
 
 
-		foreach ($datastoreResults as $index => $row) {
+		foreach ((array)$datastoreResults as $index => $row) {
 		$sample_time = strtotime($row['SAMPLE_TIME'])-$offset;
 		$x = $sample_time * 1000;
 
@@ -486,11 +486,11 @@ GROUP BY
 			);
 	}
 
-	if (count($usage_series['series']) > 0)
+	if (count((array)$usage_series['series']) > 0)
 	{
 		array_push($json, $usage_series);
 	}
-	if (count($json) > 0)
+	if (count((array)$json) > 0)
 	{
 		echo json_encode($json);
 	}
