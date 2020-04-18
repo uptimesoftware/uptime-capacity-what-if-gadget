@@ -132,7 +132,7 @@ if ($query_type == "vmware-Mem")
 	}
 	$memScale = 1e-6;
 
-	foreach ((array)$hostMemResults as $index => $row) {
+	foreach ($hostMemResults as $index => $row) {
 		$sample_time = strtotime($row['SAMPLE_TIME'])-$offset;
 		$x = $sample_time * 1000;
 
@@ -175,10 +175,10 @@ if ($query_type == "vmware-Mem")
 		);
 	}
 	
-	if (count((array)$my_series['series']) > 0) {
+	if (count($my_series['series']) > 0) {
 		array_push($json, $my_series);
 	}
-	if (count((array)$json) > 0) {
+	if (count($json) > 0) {
 		echo json_encode($json);
 	} else {
 		echo "No Data";
@@ -270,7 +270,7 @@ elseif ($query_type == "vmware-Cpu") {
 	}
 	$cpuScale = 1000;
 
-	foreach ((array)$hostCpuResults as $index => $row) {
+	foreach ($hostCpuResults as $index => $row) {
 		$sample_time = strtotime($row['SAMPLE_TIME'])-$offset;
 		$x = $sample_time * 1000;
 
@@ -313,10 +313,10 @@ elseif ($query_type == "vmware-Cpu") {
 		);
 	}
 
-	if (count((array)$my_series['series']) > 0) {
+	if (count($my_series['series']) > 0) {
 		array_push($json, $my_series);
 	}
-	if (count((array)$json) > 0) {
+	if (count($json) > 0) {
 		echo json_encode($json);
 	} else {
 		echo "No Data";
@@ -429,7 +429,7 @@ elseif ( $query_type == "vmware-Datastore")
 	$capacity = floatval($datastoreResults[0]['CURR_CAPACITY']);
 	$datastoreScale = 1e-6;
 	
-	foreach ((array)$datastoreResults as $index => $row) {
+	foreach ($datastoreResults as $index => $row) {
 		$sample_time = strtotime($row['SAMPLE_TIME'])-$offset;
 		$x = $sample_time * 1000;
 
@@ -500,11 +500,11 @@ elseif ( $query_type == "vmware-Datastore")
 			);
 	}
 
-	if (count((array)$usage_series['series']) > 0)
+	if (count($usage_series['series']) > 0)
 	{
 		array_push($json, $usage_series);
 	}
-	if (count((array)$json) > 0)
+	if (count($json) > 0)
 	{
 		echo json_encode($json);
 	}
