@@ -55,7 +55,7 @@ if ($query_type == "vmware-Mem")
 	$avg_mem_usage_array = array();
 	$hostMemResults = array();
 
-    $sql = "
+    $mssql = "
         SET nocount ON;
         DECLARE @vmware_object_id int;
         DECLARE @time_frame int;
@@ -155,7 +155,7 @@ if ($query_type == "vmware-Mem")
 	if ($db->dbType == 'mysql'){
 		$hostMemResults = $db->execQuery($mysql);
 	} else if ($db->dbType == 'mssql'){
-		$hostMemResults = $db->execQuery($sql);
+		$hostMemResults = $db->execQuery($mssql);
 	} else {
 		$hostMemResults = $db->execQuery($oraclesql);
 	}
@@ -224,43 +224,44 @@ elseif ($query_type == "vmware-Cpu") {
 	$max_cpu_usage_array = array();
 	$avg_cpu_usage_array = array();
 	$hostCpuResults = array();
+
+		$mssql = "
+			SET nocount ON;
+			DECLARE @vmware_object_id int;
+			DECLARE @time_frame int;
+			DECLARE @time_from date;
 	
-    $sql = "
-        SET nocount ON;
-        DECLARE @vmware_object_id int;
-        DECLARE @time_frame int;
-        DECLARE @time_from date;
-
-        SET @vmware_object_id = $vmware_object_id;
-        SET @time_frame = $time_frame;
-        SET @time_from = DATEADD(month, -@time_frame, GETDATE())
-
-        SELECT
-            s.vmware_object_id,
-            o.vmware_name as NAME,
-            min(cast(s.sample_time as date)) as SAMPLE_TIME,
-            min(a.cpu_usage) as MIN_CPU_USAGE,
-            max(a.cpu_usage) as MAX_CPU_USAGE,
-            avg(a.cpu_usage) as AVG_CPU_USAGE,
-            min(a.cpu_total) as TOTAL_CAPACITY
-		FROM
-            vmware_perf_aggregate a
-		JOIN vmware_perf_sample s
-            ON (
-				s.sample_id = a.sample_id AND
-				s.sample_time > @time_from
-            )
-		JOIN vmware_object o
-            ON (
-				s.vmware_object_id = o.vmware_object_id AND
-				s.vmware_object_id = @vmware_object_id
-            )
-        GROUP BY
-            s.vmware_object_id,
-            o.vmware_name,
-            year(s.sample_time),
-            month(s.sample_time),
-			day(s.sample_time)";
+			SET @vmware_object_id = $vmware_object_id;
+			SET @time_frame = $time_frame;
+			SET @time_from = DATEADD(month, -@time_frame, GETDATE())
+	
+			SELECT
+				s.vmware_object_id,
+				o.vmware_name as NAME,
+				min(cast(s.sample_time as date)) as SAMPLE_TIME,
+				min(a.cpu_usage) as MIN_CPU_USAGE,
+				max(a.cpu_usage) as MAX_CPU_USAGE,
+				avg(a.cpu_usage) as AVG_CPU_USAGE,
+				min(a.cpu_total) as TOTAL_CAPACITY
+			FROM
+				vmware_perf_aggregate a
+			JOIN vmware_perf_sample s
+				ON (
+					s.sample_id = a.sample_id AND
+					s.sample_time > @time_from
+				)
+			JOIN vmware_object o
+				ON (
+					s.vmware_object_id = o.vmware_object_id AND
+					s.vmware_object_id = @vmware_object_id
+				)
+			GROUP BY
+				s.vmware_object_id,
+				o.vmware_name,
+				s.sample_time,
+				year(s.sample_time),
+				month(s.sample_time),
+				day(s.sample_time)";
 	
 	$oraclesql="
         SELECT
@@ -396,9 +397,9 @@ elseif ( $query_type == "vmware-Datastore")
 	$min_datastore_prov_array = array();
 	$max_datastore_prov_array = array();
 	$avg_datastore_prov_array = array();
-   	$datastoreResults = array();
+   	$datastoreResults = array();	
 	
-	$datastoreSql = "
+	$datastoreMsSql = "
         SET nocount ON;
         DECLARE @vmware_object_id int;
         DECLARE @time_frame int;
@@ -436,14 +437,16 @@ elseif ( $query_type == "vmware-Datastore")
             )
         GROUP BY
             s.vmware_object_id,
-            o.vmware_name,
+			o.vmware_name,
+			s.sample_time,
             year(s.sample_time),
             month(s.sample_time),
             day(s.sample_time)
 		ORDER BY
 			year(s.sample_time),
             month(s.sample_time),
-			day(s.sample_time)";		
+			day(s.sample_time)		
+		";
 			
 			$datastoreOracleSql = "
 			SELECT

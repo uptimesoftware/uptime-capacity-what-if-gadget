@@ -278,7 +278,7 @@ elseif ( $query_type == "osperf-Cpu")
 	
 	";
 
-	$sql = "
+	$mssql="
 	SELECT
 		e.entity_id,
 		e.display_name as NAME,
@@ -300,13 +300,40 @@ elseif ( $query_type == "osperf-Cpu")
 		c.entity_configuration_id = u.entity_configuration_id AND
 		s.sample_time > dateadd(month,-$time_frame,getdate()) AND
 		e.entity_id = $vmware_object_id
-
 	GROUP BY
 		e.entity_id,
 		e.display_name,
 		s.sample_time,
 		c.numcpus,
 		u.mhz,
+		year(s.sample_time),
+		month(s.sample_time),
+		day(s.sample_time)";
+	
+	$mysql= " 
+	SELECT
+		e.entity_id,
+		e.display_name as NAME,
+		date(s.sample_time) as SAMPLE_TIME,
+		min(a.cpu_usr + a.cpu_sys + a.cpu_wio) as MIN_CPU_USAGE,
+		max(a.cpu_usr + a.cpu_sys + a.cpu_wio) as MAX_CPU_USAGE,
+		avg(a.cpu_usr + a.cpu_sys + a.cpu_wio) as AVG_CPU_USAGE,
+		c.numcpus as NUM_CPU,
+		u.mhz as TOTAL_MHZ,
+		day(s.sample_time),
+		month(s.sample_time),
+		year(s.sample_time)
+	FROM
+		performance_aggregate a, performance_sample s, entity e, entity_configuration c, entity_configuration_cpu u
+	WHERE
+		s.id = a.sample_id AND
+		s.uptimehost_id = e.entity_id AND
+		e.entity_id = c.entity_id AND
+		c.entity_configuration_id = u.entity_configuration_id AND
+		s.sample_time > date_sub(now(),interval  ". $time_frame . " month) AND
+		e.entity_id = $vmware_object_id
+	GROUP BY
+		e.entity_id,
 		year(s.sample_time),
 		month(s.sample_time),
 		day(s.sample_time)";
@@ -417,10 +444,10 @@ elseif ( $query_type == "osperf-Filesystem")
 		e.display_name,
 		s.sample_time";
 		
-	$datastoreSql = "
+	$datastoremySql = "
 	SELECT
 		e.display_name as NAME,
-		CONVERT(date, s.sample_time) as SAMPLE_TIME,
+		date(s.sample_time) as SAMPLE_TIME,
 		sum(a.total_size) as TOTAL_CAPACITY,
 		sum(a.total_size) as TOTALSIZE ,
 		min(a.space_used) as MIN_FILESYS_USAGE,
@@ -431,9 +458,28 @@ elseif ( $query_type == "osperf-Filesystem")
 	WHERE
 		s.id = a.sample_id AND
 		s.uptimehost_id = e.entity_id AND
-		s.sample_time > dateadd(month,-$time_frame,getdate()) AND
+		s.sample_time > date_sub(now(),interval ". $time_frame . " month) AND
 		e.entity_id = $vmware_object_id
 	GROUP BY
+		sample_id";
+
+		$datastoreMsSql = "
+		SELECT
+			e.display_name as NAME,
+			CONVERT(date, s.sample_time) as SAMPLE_TIME,
+			sum(a.total_size) as TOTAL_CAPACITY,
+			sum(a.total_size) as TOTALSIZE ,
+			min(a.space_used) as MIN_FILESYS_USAGE,
+			max(a.space_used) as MAX_FILESYS_USAGE,
+			avg(a.space_used) as AVG_FILESYS_USAGE
+		FROM
+			performance_fscap a, performance_sample s, entity e
+		WHERE
+			s.id = a.sample_id AND
+			s.uptimehost_id = e.entity_id AND
+			s.sample_time > dateadd(month,-$time_frame,getdate())AND
+			e.entity_id = $vmware_object_id
+		GROUP BY
 		sample_id,
 		e.display_name,
 		s.sample_time";
