@@ -148,6 +148,9 @@ if ($query_type == "vmware-Mem")
 		s.vmware_object_id = " .$vmware_object_id . "
 	GROUP BY
 		s.vmware_object_id,
+		o.vmware_name,
+		s.sample_time,
+		a.memory_total,
 		year(s.sample_time),
 		month(s.sample_time),
 		day(s.sample_time)";
@@ -313,6 +316,9 @@ elseif ($query_type == "vmware-Cpu") {
 
 	GROUP BY
 		s.vmware_object_id,
+		o.vmware_name,
+		s.sample_time,
+		a.cpu_total,
 		year(s.sample_time),
 		month(s.sample_time),
 		day(s.sample_time)
@@ -514,6 +520,9 @@ elseif ( $query_type == "vmware-Datastore")
 		s.vmware_object_id = $vmware_object_id
 	GROUP BY 
 		s.vmware_object_id,
+		o.vmware_name,
+		s.sample_time,
+		u.capacity,
 		year(s.sample_time),
 		month(s.sample_time), 
 		day(s.sample_time)

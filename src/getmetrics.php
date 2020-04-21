@@ -126,33 +126,33 @@ GROUP BY
 
 	$mysql="
 	SELECT
-		e.entity_id,
-		e.display_name as NAME,
-		MIN(cast(s.sample_time as date)) as SAMPLE_TIME,
-		min(a.free_mem) as MIN_MEM_USAGE,
-		max(a.free_mem) as MAX_MEM_USAGE,
-		avg(a.free_mem) as AVG_MEM_USAGE,
-		min(c.memsize) as TOTAL_CAPACITY,
-		max(c.memsize),
-		avg(c.memsize),
-		day(s.sample_time),
-		month(s.sample_time),
-		year(s.sample_time)
-	FROM
-		performance_aggregate a, performance_sample s, entity e, entity_configuration c
-	WHERE
-		s.id = a.sample_id AND
-		s.uptimehost_id = e.entity_id AND
-		e.entity_id = c.entity_id AND
-		e.entity_id = $vmware_object_id AND
-		s.sample_time > ADD_MONTHS(SYSDATE, -$time_frame)
-	GROUP BY
-		e.entity_id,
-		e.display_name,
-		s.sample_time,
-		year(s.sample_time),
-		month(s.sample_time),
-		day(s.sample_time)";
+				e.entity_id,
+				e.display_name as NAME,
+				date(s.sample_time) as SAMPLE_TIME,
+				min(a.free_mem) as MIN_MEM_USAGE,
+				max(a.free_mem) as MAX_MEM_USAGE,
+				avg(a.free_mem) as AVG_MEM_USAGE,
+				min(c.memsize) as TOTAL_CAPACITY,
+				max(c.memsize),
+				avg(c.memsize),
+				day(s.sample_time),
+				month(s.sample_time),
+				year(s.sample_time)
+			FROM
+				performance_aggregate a, performance_sample s, entity e, entity_configuration c
+			WHERE
+				s.id = a.sample_id AND
+				s.uptimehost_id = e.entity_id AND
+				e.entity_id = c.entity_id AND
+				s.sample_time > date_sub(now(),interval  ". $time_frame . " month) AND
+				e.entity_id = $vmware_object_id
+			GROUP BY
+				e.entity_id,
+				e.display_name,
+				s.sample_time,
+				year(s.sample_time),
+				month(s.sample_time),
+			day(s.sample_time)";
 	
 	if ($db->dbType == 'mysql'){
 		$hostMemResults = $db->execQuery($mysql);
@@ -334,6 +334,10 @@ elseif ( $query_type == "osperf-Cpu")
 		e.entity_id = $vmware_object_id
 	GROUP BY
 		e.entity_id,
+		e.display_name,
+		s.sample_time,
+		c.numcpus,
+		u.mhz,
 		year(s.sample_time),
 		month(s.sample_time),
 		day(s.sample_time)";
