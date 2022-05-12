@@ -11,7 +11,7 @@
 	</gadget_version>
 	<grid_info>
 		<supported_versions>
-			7.6,7.7,7.8
+			7.6,7.7,7.8,7.9
 		</supported_versions>
 		<supported_platforms>
 			windows,linux
